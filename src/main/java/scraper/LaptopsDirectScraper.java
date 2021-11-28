@@ -1,10 +1,12 @@
 package scraper;
 
 import dao.AppConfig;
+import dao.PhoneDao;
 
 public class LaptopsDirectScraper extends WebScraper {
 
-    public LaptopsDirectScraper(AppConfig app, long scrapeDelay_ms) {
-        super(app, scrapeDelay_ms);
+    public LaptopsDirectScraper(PhoneDao dao, long scrapeDelay_ms) {
+        super(dao, scrapeDelay_ms);
     }
 }
+

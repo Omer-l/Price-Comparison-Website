@@ -9,7 +9,9 @@ import scraper.EbayScraper;
 import scraper.ScraperManager;
 import scraper.WebScraper;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 
 @Configuration
 public class AppConfig {
@@ -19,17 +21,28 @@ public class AppConfig {
 
     @Bean
     public ScraperManager scraperManager() {
+
         ScraperManager scraperManager = new ScraperManager();
 
         //creates a list of web scrapers to run
         ArrayList<WebScraper> scraperList = new ArrayList();
-        EbayScraper ebayScraper = new EbayScraper(this, 3000, "s-item__title", "s-item__price", "s-item__image-img", "s-item__link", "s-item");
-
-        scraperList.add(ebayScraper);
-
+        scraperList.add(ebayScraper());
+//        scraperList.get(0).
         scraperManager.setScraperList(scraperList);
 
         return scraperManager;
+    }
+
+    @Bean
+    public EbayScraper ebayScraper() {
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 3000;
+        final String titleClassName = "s-item__title";
+        final String priceClassName = "s-item__price";
+        final String imgUrlClassName = "s-item__image-img";
+        final String urlClassName = "s-item__link";
+        final String itemContainerClassName = "s-item";
+        return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName);
     }
 
     @Bean

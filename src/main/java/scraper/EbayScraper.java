@@ -1,7 +1,7 @@
 package scraper;
 
-import dao.AppConfig;
 import dao.Phone;
+import dao.PhoneDao;
 import dao.Product;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -14,20 +14,20 @@ public class EbayScraper extends WebScraper {
 
     private ArrayList<ArrayList<String>> linksToProducts; //2D List of different brand's products links -> i.e. list of index 0 is a list of Apple's product links
     private ArrayList<ArrayList<String>> productModelNames;  //2D List of different model's names for each brand -> i.e. index 0 contains is a list of Apple's product model names
-    private final String titleClassName;
-    private final String priceClassName;
-    private final String imgUrlClassName;
-    private final String urlClassName;
-    private final String itemContainerClassName;
+    private final String TITLE_CLASS_NAME;
+    private final String PRICE_CLASS_NAME;
+    private final String IMG_URL_CLASS_NAME;
+    private final String URL_CLASS_NAME;
+    private final String ITEM_CONTAINER_CLASS_NAME;
 
 
-    public EbayScraper(AppConfig app, long scrapeDelay_ms, String titleClassName, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName) {
+    public EbayScraper(PhoneDao app, long scrapeDelay_ms, String TITLE_CLASS_NAME, String PRICE_CLASS_NAME, String IMG_URL_CLASS_NAME, String URL_CLASS_NAME, String ITEM_CONTAINER_CLASS_NAME) {
         super(app, scrapeDelay_ms);
-        this.titleClassName = titleClassName;
-        this.priceClassName = priceClassName;
-        this.imgUrlClassName = imgUrlClassName;
-        this.urlClassName = urlClassName;
-        this.itemContainerClassName = itemContainerClassName;
+        this.TITLE_CLASS_NAME = TITLE_CLASS_NAME;
+        this.PRICE_CLASS_NAME = PRICE_CLASS_NAME;
+        this.IMG_URL_CLASS_NAME = IMG_URL_CLASS_NAME;
+        this.URL_CLASS_NAME = URL_CLASS_NAME;
+        this.ITEM_CONTAINER_CLASS_NAME = ITEM_CONTAINER_CLASS_NAME;
         linksToProducts = new ArrayList<>();
         productModelNames = new ArrayList<>();
         linksToProducts.add(getAppleProductModelLinks());
@@ -107,6 +107,7 @@ public class EbayScraper extends WebScraper {
      * @param productModelIndex         which product model? i.e. index 4 can be Apple's "iphone XR"
      * @return                          a list of phones. (Same model as given in the parameter)
      */
+    @Override
     public List<Phone> scrapeAPhoneModel(int brandIndex, int productModelIndex) {
 
         ArrayList<Phone> listOfProducts = new ArrayList<>();
@@ -123,26 +124,27 @@ public class EbayScraper extends WebScraper {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            List<WebElement> items = getDriver().findElements(By.className(itemContainerClassName));
+            final List<WebElement> items = getDriver().findElements(By.className(ITEM_CONTAINER_CLASS_NAME));
             List<String> itemLinks = new ArrayList<>();
 
             System.out.println("\n**********\nPAGE NUMBER: " + pageIterator + "\n**********");
 
             for (WebElement item : items) {
                 try {
-                    String productTitle = item.findElement(By.className(titleClassName)).getText();
+                    String productTitle = item.findElement(By.className(TITLE_CLASS_NAME)).getText();
                     //get the products details.
 
                     if(validProduct(productTitle) && (productTitle.toLowerCase().contains(productModelNames.get(brandIndex).get(productModelIndex)))) { //validates that the product is in fact a product
-                        String productPrice = Product.getPrice(item.findElement(By.className(priceClassName)).getText());
-                        String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
-                        String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
+
+                        final String productPrice = Product.getPrice(item.findElement(By.className(PRICE_CLASS_NAME)).getText());
+                        final String productImgURL = item.findElement(By.className(IMG_URL_CLASS_NAME)).getAttribute("src");
+                        String productUrl = item.findElement(By.className(URL_CLASS_NAME)).getAttribute("href");
                         productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
-                        String productBrand = getBrand(productTitle);
-                        String productModel = getModel(productTitle);
-                        String productColor = getColor(productTitle);
-                        int productStorageSize = getStorageSize(productTitle);
-                        float productDisplaySize = getDisplaySize(productTitle);
+                        final String productBrand = getBrand(productTitle);
+                        final String productModel = getModel(productTitle);
+                        final String productColor = getColor(productTitle);
+                        final int productStorageSize = getStorageSize(productTitle);
+                        final float productDisplaySize = getDisplaySize(productTitle);
 
                         itemLinks.add(productUrl);
                         Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);
@@ -153,9 +155,10 @@ public class EbayScraper extends WebScraper {
 
                         if(phoneMapped != null)
                             newProduct.setPhone(phoneMapped);
-                        else
+                        else {
+                            getDao().addPhone(newPhone);
                             newProduct.setPhone(newPhone);
-                        System.out.println("FOUND FONE: " + productMapped + " WAS COMPARED TO THE POTENTIAL: " + newProduct);
+                        }
                         if(productMapped == null) //ensures duplicate phone is not added.
                             getDao().addProduct(newProduct);
 
@@ -193,4 +196,6 @@ public class EbayScraper extends WebScraper {
 
         return listOfProducts;
     }
+
+
 }

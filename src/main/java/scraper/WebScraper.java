@@ -1,23 +1,33 @@
 package scraper;
 
 import dao.AppConfig;
+import dao.Phone;
 import dao.PhoneDao;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.List;
 
 public abstract class WebScraper {
     private final PhoneDao dao;
     private WebDriver driver;
     private long scrapeDelay_ms;
 
-    public WebScraper(AppConfig app, long scrapeDelay_ms) {
-        dao = app.phoneDao();
+    public WebScraper(PhoneDao dao, long scrapeDelay_ms) {
+        this.dao = dao;
         initialiseDriver();
 //        app.sessionFactory();
     }
 
-    public void scrapeIPhone12ProMax() {
+    /**
+     * scrapes for a phone, given the model of the phone.
+     * @param brandIndex                    which brand? i.e. index 0 can be Apple.
+     * @param productModelIndex             which product model? i.e. index 4 can be Apple's "iphone XR"
+     * @return                              a list of phones. (Same model as given in the parameter)
+     */
+    public List<Phone> scrapeAPhoneModel(int brandIndex, int productModelIndex) {
+        return null;
     }
 
     public void initialiseStore() {
@@ -44,7 +54,7 @@ public abstract class WebScraper {
     }
 
     /**
-     *
+     * If a product has more than one color, multiple products will be added to the database, so should return an array of colors.
      * @param title     String where the color is stated
      * @return          Color in given title
      */

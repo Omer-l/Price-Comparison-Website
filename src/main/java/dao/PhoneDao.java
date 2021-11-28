@@ -2,7 +2,6 @@ package dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
@@ -34,8 +33,25 @@ public class PhoneDao {
         return phones;
     }
 
-    public void updatePhoneDetails() {
+    /**
+     * In the case of a corrupt image file, updatePhoneDetails will change the image url
+     * @param idToSearch            phone to search for in database
+     * @param phone                 object containing the new details to add to searched phone.
+     */
+    public void updatePhoneDetails(int idToSearch, Phone phone) {
+        if(idToSearch > 0) {
+            Session session = sessionFactory.getCurrentSession();
 
+            session.beginTransaction();
+
+            String queryStr = "from Phone where id=" + idToSearch;
+            List<Phone> phoneList = session.createQuery(queryStr).getResultList();
+
+            if(phoneList.size() == 1)
+                phoneList.get(0).setUrl_image(phone.getUrl_image());
+
+            session.getTransaction().commit();
+        }
     }
 
     public void deletePhone() {
@@ -52,7 +68,13 @@ public class PhoneDao {
 
         session.beginTransaction();
 
-        String queryStr = "from Phone where model='" + phone.getModel() + "'";
+        String phoneModel = phone.getModel();
+        String phoneBrand = phone.getBrand();
+        String phoneColor = phone.getColor();
+        int phoneStorage = phone.getStorage();
+        float phoneDisplaySize = phone.getDisplaySize();
+
+        String queryStr = "from Phone where model='" + phoneModel + "' AND brand='" + phoneBrand + "' AND color='" + phoneColor + "' AND storage=" + phoneStorage;
 
         System.out.println(queryStr);
 
@@ -64,7 +86,11 @@ public class PhoneDao {
             System.out.println("THIS IS A NEW PHONE MODEL!");
             return null;
         } else {
-            return phoneList.get(0);
+            Phone foundPhone = phoneList.get(0);
+            if(foundPhone.getUrl_image().contains(".gif") && !phone.getUrl_image().contains(".gif")) { //ensures correct image url is added
+                updatePhoneDetails(foundPhone.getId(), phone);
+            }
+            return foundPhone;
         }
     }
 

@@ -75,7 +75,7 @@ public class Phone {
         this.storage = storage;
     }
 
-    public float getDisplay_size() {
+    public float getDisplaySize() {
         return display_size;
     }
 
