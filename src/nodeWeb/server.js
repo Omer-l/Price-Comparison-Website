@@ -10,7 +10,11 @@ require('./http_status.js');
 
 //The express module is a function. When it is executed it returns an app object
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json());//Set up express to serve static files from the directory called 'public'
+app.use(express.static('public')); //use public folder to load files
+app.use('/css', express.static('node_modules/bootstrap/dist/css')); //bootstrap css
+app.use('/js', express.static('node_modules/bootstrap/dist/js')); //boostrap js
+app.use('/js', express.static('node_modules/jquery/dist')); //jquery
 
 
 //Start the app listening on port 8080
@@ -52,13 +56,13 @@ function handleGetRequest(request, response){
     var pathEnd = pathArray[pathArray.length - 1];
 
     //If path ends with 'cereals' we return all cereals
-    if(pathEnd === 'cereals'){
+    if(pathEnd === 'products'){
         getTotalCerealsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
         return;
     }
 
     //If path ends with cereals/, we return all cereals
-    if (pathEnd === '' && pathArray[pathArray.length - 2] === 'cereals'){
+    if (pathEnd === '' && pathArray[pathArray.length - 2] === 'products'){
         getTotalCerealsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
         return;
     }
@@ -76,17 +80,15 @@ function handleGetRequest(request, response){
 }
 
 
-/** Returns all of the cereals, possibly with a limit on the total number of items returned and the offset (to
- *  enable pagination). This function should be called in the callback of getTotalCerealsCount  */
+/** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
+ *  enable pagination). This function should be called in the callback of getTotalProductCount  */
 function getAllCereals(response, totNumItems, numItems, offset){
     //Select the cereals data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT cereals.id, brands.name, product_type.name, product_type.description, cereals.weight, cereals.price " +
-    "FROM ( (cereals INNER JOIN product_type ON cereals.product_type_id=product_type.id) " +
-    "INNER JOIN brands ON cereals.brand_id=brands.id ) ";
+    var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
 
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
-        sql += "ORDER BY cereals.id LIMIT " + numItems + " OFFSET " + offset;
+        sql += "ORDER BY products.id LIMIT " + numItems + " OFFSET " + offset;
     }
 
     //Execute the query
@@ -110,11 +112,11 @@ function getAllCereals(response, totNumItems, numItems, offset){
 }
 
 
-/** When retrieving all cereals we start by retrieving the total number of cereals
+/** When retrieving all products we start by retrieving the total number of products
     The database callback function will then call the function to get the cereal data
     with pagination */
 function getTotalCerealsCount(response, numItems, offset){
-    var sql = "SELECT COUNT(*) FROM cereals";
+    var sql = "SELECT COUNT(*) FROM products";
 
     //Execute the query and call the anonymous callback function.
     connectionPool.query(sql, function (err, result) {
@@ -136,13 +138,10 @@ function getTotalCerealsCount(response, numItems, offset){
 }
 
 
-/** Returns the cereal with the specified ID */
-function getCereal(response, id){
+/** Returns the phones with the specified ID */
+function getPhone(response, phoneId){
     //Build SQL query to select cereal with specified id.
-    var sql = "SELECT cereals.id, brands.name, product_type.name, product_type.description, cereals.weight, cereals.price " +
-        "FROM ( (cereals INNER JOIN product_type ON cereals.product_type_id=product_type.id) " +
-        "INNER JOIN brands ON cereals.brand_id=brands.id ) " +
-        "WHERE cereals.id=" + id;
+    var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
