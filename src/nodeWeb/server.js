@@ -10,7 +10,9 @@ require('./http_status.js');
 
 //The express module is a function. When it is executed it returns an app object
 const app = express();
-app.use(bodyParser.json());//Set up express to serve static files from the directory called 'public'
+app.use(bodyParser.json());
+
+//Set up express to serve static files from the directory called 'public'
 app.use(express.static('public')); //use public folder to load files
 app.use('/css', express.static('node_modules/bootstrap/dist/css')); //bootstrap css
 app.use('/js', express.static('node_modules/bootstrap/dist/js')); //boostrap js
@@ -20,18 +22,25 @@ app.use('/js', express.static('node_modules/jquery/dist')); //jquery
 //Start the app listening on port 8080
 app.listen(8080);
 //Create a connection object with the user details
-var connectionPool = mysql.createPool({
-    connectionLimit: 1,
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "sampple",
-    debug: false
+var connectionPool = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '',
+    database : 'sampple'
 });
 
+connectionPool.connect();
+
+connectionPool.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+    if (error) throw error;
+    console.log('The solution is: ', results[0].solution);
+});
+
+connectionPool.end();
+
 //Set up the application to handle GET requests sent to the user path
-app.get('/phones/*', handleGetRequest);//Subfolders
-app.get('/phones', handleGetRequest);
+app.get('/products/*', handleGetRequest);//Subfolders
+app.get('/products', handleGetRequest);
 
 
 
@@ -55,22 +64,22 @@ function handleGetRequest(request, response){
     //Get the last part of the path
     var pathEnd = pathArray[pathArray.length - 1];
 
-    //If path ends with 'cereals' we return all cereals
+    //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
-        getTotalCerealsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
+        getTotalProductsCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
         return;
     }
 
-    //If path ends with cereals/, we return all cereals
+    //If path ends with products/, we return all products
     if (pathEnd === '' && pathArray[pathArray.length - 2] === 'products'){
-        getTotalCerealsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
+        getTotalProductsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
         return;
     }
 
     //If the last part of the path is a valid user id, return data about that user
     var regEx = new RegExp('^[0-9]+$');//RegEx returns true if string is all digits.
     if(regEx.test(pathEnd)){
-        getCereal(response, pathEnd);
+        getSpecificProduct(response, pathEnd);
         return;
     }
 
@@ -82,9 +91,10 @@ function handleGetRequest(request, response){
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
-function getAllCereals(response, totNumItems, numItems, offset){
+function getAllProducts(response, totNumItems, numItems, offset){
     //Select the cereals data using JOIN to convert foreign keys into useful data.
     var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
+    // var sql = "SELECT products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) "; //DEL
 
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
@@ -105,7 +115,6 @@ function getAllCereals(response, totNumItems, numItems, offset){
         //Create JavaScript object that combines total number of items with data
         var returnObj = {totNumItems: totNumItems};
         returnObj.data = result; //Array of data from database
-
         //Return results in JSON format
         response.json(returnObj);
     });
@@ -115,7 +124,7 @@ function getAllCereals(response, totNumItems, numItems, offset){
 /** When retrieving all products we start by retrieving the total number of products
     The database callback function will then call the function to get the cereal data
     with pagination */
-function getTotalCerealsCount(response, numItems, offset){
+function getTotalProductsCount(response, numItems, offset){
     var sql = "SELECT COUNT(*) FROM products";
 
     //Execute the query and call the anonymous callback function.
@@ -123,6 +132,7 @@ function getTotalCerealsCount(response, numItems, offset){
 
         //Check for errors
         if (err){
+            console.error("Error executing query: " + JSON.stringify(err)); // del?
             //Not an ideal error code, but we don't know what has gone wrong.
             response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
             response.json({'error': true, 'message': + err});
@@ -133,13 +143,13 @@ function getTotalCerealsCount(response, numItems, offset){
         var totNumItems = result[0]['COUNT(*)'];
 
         //Call the function that retrieves all cereals
-        getAllCereals(response, totNumItems, numItems, offset);
+        getAllProducts(response, totNumItems, numItems, offset);
     });
 }
 
 
 /** Returns the phones with the specified ID */
-function getPhone(response, phoneId){
+function getSpecificProduct(response, phoneId){
     //Build SQL query to select cereal with specified id.
     var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
 

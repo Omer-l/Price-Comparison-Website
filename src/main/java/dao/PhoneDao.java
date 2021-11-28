@@ -59,7 +59,7 @@ public class PhoneDao {
     }
 
     /**
-     * gets the id of a phone model in the database that hibernate finds
+     * gets the phone model in the database that hibernate finds
      * @param phone     a phone to compare phones in the database with.
      * @return          if the phone model exists, return it
      */
@@ -143,7 +143,7 @@ public class PhoneDao {
     /**
      * This function a list of products matching the given product
      * @param product       product to search database
- *     @return              list of products with matching details.
+     * @return              list of products with matching details.
      */
     public Product findProduct(Product product) {
         Session session = sessionFactory.getCurrentSession();

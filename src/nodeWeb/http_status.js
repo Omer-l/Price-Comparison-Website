@@ -1,3 +1,4 @@
+//This file contains statuses in the case of an error when loading the website.
 HTTP_STATUS = {
     OK: 200,
     CREATED: 201,

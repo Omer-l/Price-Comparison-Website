@@ -7,7 +7,7 @@ import java.util.List;
  * Demonstrates how you can use Selenium Chrome Driver to access data from websites
  * that load data dynamically with JavaScript
  */
-public class wScraperManager {
+public class ScraperManager {
     List<WebScraper> scraperList;
 
     public ScraperManager(ArrayList<WebScraper> scraperList) {
