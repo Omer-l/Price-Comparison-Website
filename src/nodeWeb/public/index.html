@@ -5,6 +5,10 @@
         <title>Sampple</title>
         <link rel="stylesheet" href="./css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Vue development version, includes helpful console warnings -->
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <!-- Axios library -->
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     </head>
 
     <body class="bg-info">
@@ -20,7 +24,49 @@
             <button type="button" class="btn btn-outline-primary">search</button>
         </div>
         <h3>Apple products below</h3>
-        <div id="AppleDiv"></div>
+        <div id="app">
+            <p v-for="product in products">
+                <b>id</b>: {{product.id}};
+                <b>name</b>: {{product.name}};
+                <b>url</b>: {{product.url}};
+                <b>price</b>: {{product.price}}
+            </p>
+        </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                products: []
+            },
+            methods : {
+                //Get all the products from the web service using Axios.
+                loadProducts: function (){
+                    var localApp = this;
+                    axios.get('/products')//Send GET request to products path
+                        .then(function (response) {//Request successful
+                            //Point products in data to returned array of products
+                            localApp.products = response.data.products;
+                            console.log(response.data.products);
+                            console.log(JSON.stringify(response.data.products));
+                        })
+                        .catch(function (error) {
+                            //Handle error
+                            console.log("HI THERE!!");
+                            console.log(error);
+                        });
+                }
+            },
+            created: function(){//Vue lifecycle hook, called when data is loaded.
+                //Load products from web service
+                this.loadProducts();
+
+                //Refresh products every 5 seconds
+                setInterval(this.loadProducts, 5000);
+            }
+        })
+    </script>
+        <script src="./client.js"/>
     </body>
 
 </html>

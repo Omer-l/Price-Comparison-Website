@@ -38,14 +38,14 @@ app.get('/products', handleGetRequest);
 /* Handles GET requests sent to web service.
    Processes path and query string and calls appropriate functions to
    return the data. */
-function handleGetRequest(request, response){
+function handleGetRequest(request, response) {
     //Parse the URL
     var urlObj = url.parse(request.url, true);
 
     //Extract object containing queries from URL object.
     var queries = urlObj.query;
 
-    //Get the pagination properties if they have been set. Will be  undefined if not set.
+    //Get the pagination properties if they have been set. Will be undefined if not set.
     var numItems = queries['num_items'];
     var offset = queries['offset'];
 
@@ -82,9 +82,9 @@ function handleGetRequest(request, response){
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
-function getAllProducts(response, totNumItems, numItems, offset){
+function getAllProducts(response, totNumItems, numItems, offset) {
     //Select the cereals data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
+    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
     // var sql = "SELECT products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) "; //DEL
 
     //Limit the number of results returned, if this has been specified in the query string
@@ -105,7 +105,7 @@ function getAllProducts(response, totNumItems, numItems, offset){
 
         //Create JavaScript object that combines total number of items with data
         var returnObj = {totNumItems: totNumItems};
-        returnObj.data = result; //Array of data from database
+        returnObj.products = result; //Array of data from database
         //Return results in JSON format
         response.json(returnObj);
     });
@@ -142,7 +142,7 @@ function getTotalProductsCount(response, numItems, offset){
 /** Returns the phones with the specified ID */
 function getSpecificProduct(response, phoneId){
     //Build SQL query to select cereal with specified id.
-    var sql = "SELECT products.name, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
+    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
