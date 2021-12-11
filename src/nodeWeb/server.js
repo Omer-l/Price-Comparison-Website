@@ -63,7 +63,7 @@ function handleGetRequest(request, response) {
 
     //If path ends with products/, we return all products
     if (pathEnd === '' && pathArray[pathArray.length - 2] === 'products'){
-        getTotalProductsCount(response, numItems, offset);//This function calls the getAllCereals function in its callback
+        getTotalProductsCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -83,8 +83,8 @@ function handleGetRequest(request, response) {
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
 function getAllProducts(response, totNumItems, numItems, offset) {
-    //Select the cereals data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
+    //Select the products data using JOIN to convert foreign keys into useful data.
+    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
     // var sql = "SELECT products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) "; //DEL
 
     //Limit the number of results returned, if this has been specified in the query string
@@ -113,7 +113,7 @@ function getAllProducts(response, totNumItems, numItems, offset) {
 
 
 /** When retrieving all products we start by retrieving the total number of products
-    The database callback function will then call the function to get the cereal data
+    The database callback function will then call the function to get the product data
     with pagination */
 function getTotalProductsCount(response, numItems, offset){
     var sql = "SELECT COUNT(*) FROM products";
@@ -133,7 +133,7 @@ function getTotalProductsCount(response, numItems, offset){
         //Get the total number of items from the result
         var totNumItems = result[0]['COUNT(*)'];
 
-        //Call the function that retrieves all cereals
+        //Call the function that retrieves all products
         getAllProducts(response, totNumItems, numItems, offset);
     });
 }
@@ -141,7 +141,7 @@ function getTotalProductsCount(response, numItems, offset){
 
 /** Returns the phones with the specified ID */
 function getSpecificProduct(response, phoneId){
-    //Build SQL query to select cereal with specified id.
+    //Build SQL query to select product with specified id.
     var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
 
     //Execute the query
