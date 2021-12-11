@@ -11,11 +11,12 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <!-- Load required Bootstrap and BootstrapVue CSS -->
-    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
 
     <!-- Load polyfills to support older browsers -->
-    <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+    <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+            crossorigin="anonymous"></script>
 
     <!-- Load Vue followed by BootstrapVue -->
     <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
@@ -26,21 +27,24 @@
 </head>
 
 <body class="bg-info">
-<div class="bg-info container border border-dark">
-    <h1 class="text-center">Sampple</h1>
-</div>
-<div class="container">
-    <img src="searchBackground.png" height="200" width="500">
-</div>
-<form>
-    <div id="searchDiv" class="input-group" style="width: 500px">
-        <input id="searchInput" type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
-               aria-describedby="search-addon"/>
-        <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
-    </div>
-</form>
-<h3>Apple products below</h3>
 <div id="app">
+    <div class="bg-info container border border-dark">
+        <h1 class="text-center">Sampple</h1>
+    </div>
+    <div class="container">
+        <img src="searchBackground.png" height="200" width="500">
+    </div>
+    <div id="searchDiv" class="input-group" style="width: 500px">
+        <b-form-input
+            v-model="search"
+            class="form-control rounded"
+            placeholder="Search"
+            type="text"
+        ></b-form-input>
+        <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
+
+    </div>
+    <h3>Apple products below</h3>
 
     <b-pagination
             v-model="currentPage"
@@ -52,24 +56,26 @@
 
     <b-table
             id="my-table"
-            :items="products"
+            :fields="fields"
+            :items="filteredProducts"
+            :search="search"
             :per-page="perPage"
             :current-page="currentPage"
             small
     ></b-table>
 </div>
 
-    <!-- Use emojis in props -->
-    <b-pagination
-            v-model="currentPage"
-            :total-rows="rows"
-            :per-page="perPage"
-            first-text="⏮"
-            prev-text="⏪"
-            next-text="⏩"
-            last-text="⏭"
-            class="mt-4"
-    ></b-pagination>
+<!-- Use emojis in props -->
+<b-pagination
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+        first-text="⏮"
+        prev-text="⏪"
+        next-text="⏩"
+        last-text="⏭"
+        class="mt-4"
+></b-pagination>
 </div>
 <script>
 
@@ -79,7 +85,13 @@
             rows: 100,
             perPage: 10,
             currentPage: 1,
-            products: []
+            products: [],
+            search: '',
+            fields: [
+                {key: 'model', label: 'Model', sortable: true},
+                {key: 'storage', label: 'Storage', sortable: true},
+                {key: 'color', label: 'Color', sortable: true}
+            ]
         },
         methods: {
             //Get all the products from the web service using Axios.
@@ -103,6 +115,14 @@
 
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);
+        },
+        computed: {
+            filteredProducts() {
+                console.log("FILTERING");
+                return this.search
+                    ? this.products.filter(product => product.name.includes(this.search) || product.model.includes(this.search) || product.color.includes(this.search))
+                    : this.products
+            }
         }
     })
 

@@ -21,18 +21,6 @@ var setSearch = new Vue({
         }
     }
 })
-var search = new Vue({
-    el: '#search',
-    data: {
-        searchInput: ''
-    },
-    // define methods under the `methods` object
-    methods: {
-        greet: function (searchInput) {
-            this.searchInput = searchInput;
-        }
-    }
-})
 
 // function loadProducts() {
 //     //set up XMLHTTPRequest()
