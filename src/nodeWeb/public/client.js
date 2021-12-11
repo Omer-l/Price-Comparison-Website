@@ -1,16 +1,39 @@
 //div elements where products will be inserted
 const axios = require("axios");
-let appleProductsDiv;
 
 
 //when page is loaded, run init
 window.onload = init;
 
-//Get the pointers to parts of the DOM after the page has loaded.
-function init() {
-    appleProductsDiv = document.getElementById("AppleDiv");
-    app;
-}
+let search = "not changed";
+
+var setSearch = new Vue({
+    el: '#searchDiv',
+    data: {
+        searchInput: ""
+    },
+    methods: {
+        search: function () {
+            var localApp = this;
+            localApp.searchInput = document.getElementById("searchInput").value;
+            console.log("HERE THERE");
+            console.log(localApp.searchInput);
+        }
+    }
+})
+var search = new Vue({
+    el: '#search',
+    data: {
+        searchInput: ''
+    },
+    // define methods under the `methods` object
+    methods: {
+        greet: function (searchInput) {
+            this.searchInput = searchInput;
+        }
+    }
+})
+
 // function loadProducts() {
 //     //set up XMLHTTPRequest()
 //     let xhttp = new XMLHttpRequest();

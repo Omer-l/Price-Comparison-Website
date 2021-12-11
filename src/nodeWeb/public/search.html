@@ -1,10 +1,92 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<head>
-    <title>Title</title>
-</head>
-<body>
 
+<head>
+    <title>Sampple</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Vue development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- Axios library -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body class="bg-info">
+<div class="bg-info container border border-dark">
+    <h1 class="text-center">Sampple</h1>
+</div>
+<div class="container">
+    <img src="searchBackground.png" height="200" width="500">
+</div>
+<div class="input-group" style="width: 500px">
+    <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
+           aria-describedby="search-addon"/>
+    <button type="button" class="btn btn-outline-primary">search</button>
+</div>
+<h3>Apple products below</h3>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Apple</th>
+        <th scope="col">Samsung</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row">
+
+            <div id="app">
+                <div v-for="product in products">
+                    <p>{{product.model}}</p>
+                    <img :src="product.url_image" width="100" height="100"/>
+                    <p>£{{product.price}}</p>
+                </div>
+            </div>
+        </th>
+        <td>Mark</td>
+    </tr>
+    <tr>
+        <th scope="row">2</th>
+        <td>Jacob</td>
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            products: []
+        },
+        methods: {
+            //Get all the products from the web service using Axios.
+            loadProducts: function () {
+                var localApp = this;
+                axios.get('/products')//Send GET request to products path
+                    .then(function (response) {//Request successful
+                        //Point products in data to returned array of products
+                        localApp.products = response.data.products;
+                        console.log(response.data.products);
+                        console.log(JSON.stringify(response.data.products));
+                    })
+                    .catch(function (error) {
+                        //Handle error
+                        console.log("HI THERE!!");
+                        console.log(error);
+                    });
+            }
+        },
+        created: function () {//Vue lifecycle hook, called when data is loaded.
+            //Load products from web service
+            this.loadProducts();
+
+            //Refresh products every 5 seconds
+            setInterval(this.loadProducts, 5000);
+        }
+    })
+</script>
+<script src="./client.js"/>
 </body>
+
 </html>
