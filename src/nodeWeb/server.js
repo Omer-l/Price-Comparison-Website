@@ -90,7 +90,7 @@ function handleGetRequest(request, response) {
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
 function getAllProducts(response, totNumItems, numItems, offset) {
     //Select the products data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
+    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
 
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
@@ -205,7 +205,7 @@ function getTotalPhonesCount(response, numItems, offset){
 function getSpecificProduct(response, phoneModel){
     //Build SQL query to select product with specified id.
     phoneModel = phoneModel.replaceAll("%20", " "); //turn the url into a regular readable string for mysql
-    var sql = "SELECT products.name, products.url, phones.brand, phones.display_size, products.price, phones.model, phones.color, phones.storage FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.model LIKE '%" + phoneModel + "%'";
+    var sql = "SELECT products.name, products.store, products.url, phones.brand, phones.display_size, products.price, phones.model, phones.color, phones.storage FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.model LIKE '%" + phoneModel + "%'";
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
