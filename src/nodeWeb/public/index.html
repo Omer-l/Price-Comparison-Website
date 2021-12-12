@@ -63,11 +63,13 @@
             :current-page="currentPage"
             small
     >
-        <template #cell(name)="row">
-            {{ row.value.first }} {{ row.value.last }}
+        <template #cell(image)="row">
+                <img :src="row.item.url_image" width="100px" height="100px" />
         </template>
+s
 
         <template #cell(actions)="row">
+
             <b-button size="sm" @click="goToComparePage(row.item)" class="mr-1">
                 Compare
             </b-button>
@@ -125,6 +127,7 @@
             search: '',
             fields: [
                 {key: 'model', label: 'Model', sortable: true},
+                {key: 'image', label: 'Image'},
                 {key: 'storage', label: 'Storage', sortable: true},
                 {key: 'color', label: 'Color', sortable: true},
                 {key: 'actions', label: 'Actions'}
