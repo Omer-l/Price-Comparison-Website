@@ -9,70 +9,140 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!-- Axios library -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Load required Bootstrap and BootstrapVue CSS -->
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"/>
+
+    <!-- Load polyfills to support older browsers -->
+    <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+            crossorigin="anonymous"></script>
+
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+    <!-- Load the following for BootstrapVueIcons support -->
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 </head>
 
 <body class="bg-info">
-<div class="bg-info container border border-dark">
-    <h1 class="text-center">Sampple</h1>
-</div>
-<div class="container">
-    <img src="searchBackground.png" height="200" width="500">
-</div>
-<div class="input-group" style="width: 500px">
-    <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search"
-           aria-describedby="search-addon"/>
-    <button type="button" class="btn btn-outline-primary">search</button>
-</div>
-<h3>Apple products below</h3>
+<div id="app">
+    <div class="bg-info container border border-dark">
+        <h1 class="text-center">Sampple</h1>
+    </div>
+    <div class="container">
+        <img src="searchBackground.png" height="200" width="500">
+    </div>
+    <div id="searchDiv" class="input-group" style="width: 500px">
+        <b-form-input
+                v-model="search"
+                class="form-control rounded"
+                placeholder="Search"
+                type="text"
+        ></b-form-input>
+        <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col">Apple</th>
-        <th scope="col">Samsung</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <th scope="row">
+    </div>
+    <h3>Apple products below</h3>
 
-            <div id="app">
-                <div v-for="product in products">
-                    <p>{{product.model}}</p>
-                    <img :src="product.url_image" width="100" height="100"/>
-                    <p>£{{product.price}}</p>
-                </div>
-            </div>
-        </th>
-        <td>Mark</td>
-    </tr>
-    <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-    </tr>
-    </tbody>
-</table>
+    <b-pagination
+            v-model="currentPage"
+            :total-rows="rows"
+            :per-page="perPage"
+            aria-controls="my-table"
+    ></b-pagination>
+    <p class="mt-3">Current Page: {{ currentPage }}</p>
 
+    <b-table
+            id="my-table"
+            :fields="fields"
+            :items="filteredProducts"
+            :search="search"
+            :per-page="perPage"
+            :current-page="currentPage"
+            small
+    >
+        <template #cell(name)="row">
+            {{ row.value.first }} {{ row.value.last }}
+        </template>
+
+        <template #cell(actions)="row">
+            <b-button size="sm" @click="info(row.item)" class="mr-1">
+                Compare
+            </b-button>
+            <b-button size="sm" @click="row.toggleDetails">
+                {{ row.detailsShowing ? 'Hide' : 'Show' }} Specifications
+            </b-button>
+        </template>
+
+        <template #row-details="row">
+            <b-card>
+                <ul>
+                    <li>
+                        Brand: {{row.item.brand}}
+                    </li>
+                    <li>
+                        Model: {{row.item.model}}
+                    </li>
+                    <li>
+                        Display size: {{row.item.display_size}}"
+                    </li>
+                    <li>
+                        Storage size: {{row.item.storage}}
+                    </li>
+                    <li>
+                        Color: {{row.item.color}}
+                    </li>
+                </ul>
+            </b-card>
+        </template>
+    </b-table>
+
+</div>
+
+<!-- Use emojis in props -->
+<b-pagination
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+        first-text="⏮"
+        prev-text="⏪"
+        next-text="⏩"
+        last-text="⏭"
+        class="mt-4"
+></b-pagination>
+</div>
 <script>
     var app = new Vue({
         el: '#app',
         data: {
-            products: []
+            rows: 100,
+            perPage: 10,
+            currentPage: 1,
+            products: [],
+            search: '',
+            fields: [
+                {key: 'model', label: 'Model', sortable: true},
+                {key: 'storage', label: 'Storage', sortable: true},
+                {key: 'color', label: 'Color', sortable: true},
+                {key: 'actions', label: 'Actions'}
+            ]
         },
         methods: {
             //Get all the products from the web service using Axios.
             loadProducts: function () {
+                const params = new URLSearchParams(window.location.search);
+                const phoneModel = params.get("model");
                 var localApp = this;
-                axios.get('/products')//Send GET request to products path
+                axios.get('/products/' + phoneModel)//Send GET request to products path
                     .then(function (response) {//Request successful
                         //Point products in data to returned array of products
                         localApp.products = response.data.products;
                         console.log(response.data.products);
-                        console.log(JSON.stringify(response.data.products));
                     })
                     .catch(function (error) {
                         //Handle error
-                        console.log("HI THERE!!");
                         console.log(error);
                     });
             }
@@ -83,8 +153,16 @@
 
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);
+        },
+        computed: {
+            filteredProducts() {
+                return this.search
+                    ? this.products.filter(product => product.name.includes(this.search) || product.model.includes(this.search) || product.color.includes(this.search))
+                    : this.products
+            }
         }
     })
+
 </script>
 <script src="./client.js"/>
 </body>

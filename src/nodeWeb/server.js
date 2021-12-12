@@ -142,7 +142,7 @@ function getTotalProductsCount(response, numItems, offset){
 function getSpecificProduct(response, phoneModel){
     //Build SQL query to select product with specified id.
     phoneModel = phoneModel.replaceAll("%20", " "); //turn the url into a regular readable string for mysql
-    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.model LIKE '%" + phoneModel + "%'";
+    var sql = "SELECT products.name, products.url, phones.brand, phones.display_size, products.price, phones.model, phones.color, phones.storage FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.model LIKE '%" + phoneModel + "%'";
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
@@ -154,8 +154,10 @@ function getSpecificProduct(response, phoneModel){
             response.json({'error': true, 'message': + err});
             return;
         }
-
+        var returnObj = {
+            products: result};
+        console.log(returnObj.products);
         //Output results in JSON format
-        response.json(result);
+        response.json(returnObj);
     });
 }
