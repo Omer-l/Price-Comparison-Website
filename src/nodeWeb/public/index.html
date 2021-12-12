@@ -121,7 +121,7 @@
             rows: 100,
             perPage: 10,
             currentPage: 1,
-            products: [],
+            phones: [],
             search: '',
             fields: [
                 {key: 'model', label: 'Model', sortable: true},
@@ -131,14 +131,14 @@
             ]
         },
         methods: {
-            //Get all the products from the web service using Axios.
+            //Get all the phones from the web service using Axios.
             loadProducts: function () {
                 var localApp = this;
-                axios.get('/products')//Send GET request to products path
+                axios.get('/phones')//Send GET request to phones path
                     .then(function (response) {//Request successful
-                        //Point products in data to returned array of products
-                        localApp.products = response.data.products;
-                        console.log(JSON.stringify(response.data.products));
+                        //Point phones in data to returned array of phones
+                        localApp.phones = response.data.phones;
+                        console.log(JSON.stringify(response.data.phones));
                     })
                     .catch(function (error) {
                         //Handle error
@@ -147,21 +147,6 @@
             },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
-            },
-
-            //Get all the products from the web service using Axios.
-            goToSpecificProduct: function (model) {
-                var localApp = this;
-                axios.get('/products')//Send GET request to products path
-                    .then(function (response) {//Request successful
-                        //Point products in data to returned array of products
-                        localApp.products = response.data.products;
-                        console.log(JSON.stringify(response.data.products));
-                    })
-                    .catch(function (error) {
-                        //Handle error
-                        console.log(error);
-                    });
             }
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
@@ -174,8 +159,8 @@
         computed: {
             filteredProducts() {
                 return this.search
-                    ? this.products.filter(product => product.name.includes(this.search) || product.model.includes(this.search) || product.color.includes(this.search))
-                    : this.products
+                    ? this.phones.filter(phone => phone.model.includes(this.search) || phone.color.includes(this.search))
+                    : this.phones
             }
         }
     })

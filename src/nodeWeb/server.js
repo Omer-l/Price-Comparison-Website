@@ -32,6 +32,7 @@ var connectionPool = mysql.createConnection({
 //Set up the application to handle GET requests sent to the user path
 app.get('/products/*', handleGetRequest);//Subfolders
 app.get('/products', handleGetRequest);
+app.get('/phones', handleGetRequest);
 
 
 
@@ -61,6 +62,12 @@ function handleGetRequest(request, response) {
         return;
     }
 
+    if(pathEnd == 'phones') {
+        console.log("GETTING PHONES");
+        getTotalPhonesCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
+        return;
+    }
+
     //If path ends with products/, we return all products
     if (pathEnd === '' && pathArray[pathArray.length - 2] === 'products'){
         getTotalProductsCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
@@ -84,7 +91,6 @@ function handleGetRequest(request, response) {
 function getAllProducts(response, totNumItems, numItems, offset) {
     //Select the products data using JOIN to convert foreign keys into useful data.
     var sql = "SELECT products.name, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
-    // var sql = "SELECT products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) "; //DEL
 
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
@@ -134,6 +140,62 @@ function getTotalProductsCount(response, numItems, offset){
 
         //Call the function that retrieves all products
         getAllProducts(response, totNumItems, numItems, offset);
+    });
+}
+
+/** Returns all of the phones, possibly with a limit on the total number of items returned and the offset (to
+ *  enable pagination). This function should be called in the callback of getTotalProductCount  */
+function getAllPhones(response, totNumItems, numItems, offset) {
+    //Select the phones data using JOIN to convert foreign keys into useful data.
+    var sql = "SELECT * FROM phones";
+
+    //Limit the number of results returned, if this has been specified in the query string
+    if(numItems !== undefined && offset !== undefined ){
+        sql += "ORDER BY phones.id LIMIT " + numItems + " OFFSET " + offset;
+    }
+
+    //Execute the query
+    connectionPool.query(sql, function (err, result) {
+
+        //Check for errors
+        if (err){
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': + err});
+            return;
+        }
+
+        //Create JavaScript object that combines total number of items with data
+        var returnObj = {totNumItems: totNumItems};
+        returnObj.phones = result; //Array of data from database
+        //Return results in JSON format
+        response.json(returnObj);
+    });
+}
+
+/** When retrieving all phones we start by retrieving the total number of phones
+ The database callback function will then call the function to get the phones data
+ with pagination */
+function getTotalPhonesCount(response, numItems, offset){
+    var sql = "SELECT COUNT(*) FROM phones";
+
+    //Execute the query and call the anonymous callback function.
+    connectionPool.query(sql, function (err, result) {
+
+        //Check for errors
+        if (err){
+            console.error("Error executing query: " + JSON.stringify(err)); // del?
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': + err});
+            return;
+        }
+
+        //Get the total number of items from the result
+        var totNumItems = result[0]['COUNT(*)'];
+
+        //Call the function that retrieves all phones
+        getAllPhones(response, totNumItems, numItems, offset);
     });
 }
 
