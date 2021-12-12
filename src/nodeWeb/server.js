@@ -63,7 +63,6 @@ function handleGetRequest(request, response) {
     }
 
     if(pathEnd == 'phones') {
-        console.log("GETTING PHONES");
         getTotalPhonesCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
         return;
     }
