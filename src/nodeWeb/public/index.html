@@ -36,10 +36,10 @@
     </div>
     <div id="searchDiv" class="input-group" style="width: 500px">
         <b-form-input
-            v-model="search"
-            class="form-control rounded"
-            placeholder="Search"
-            type="text"
+                v-model="search"
+                class="form-control rounded"
+                placeholder="Search"
+                type="text"
         ></b-form-input>
         <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
 
@@ -68,7 +68,7 @@
         </template>
 
         <template #cell(actions)="row">
-            <b-button size="sm" @click="info(row.item, row.index, $event.target)" class="mr-1">
+            <b-button size="sm" @click="info(row.item)" class="mr-1">
                 Compare
             </b-button>
             <b-button size="sm" @click="row.toggleDetails">
@@ -92,7 +92,7 @@
                         Storage size: {{row.item.storage}}
                     </li>
                     <li>
-                        Color:  {{row.item.color}}
+                        Color: {{row.item.color}}
                     </li>
                 </ul>
             </b-card>
@@ -127,8 +127,13 @@
                 {key: 'model', label: 'Model', sortable: true},
                 {key: 'storage', label: 'Storage', sortable: true},
                 {key: 'color', label: 'Color', sortable: true},
-                { key: 'actions', label: 'Actions' }
-            ]
+                {key: 'actions', label: 'Actions'}
+            ],
+            infoModal: {
+                id: 'info-modal',
+                title: '',
+                content: ''
+            }
         },
         methods: {
             //Get all the products from the web service using Axios.
@@ -145,6 +150,10 @@
                         console.log(error);
                     });
             },
+            info(item) {
+                console.log("LINK HERE: " + window.location.href);
+                window.location.href += "product.html?model=" + item.model;
+            },
 
             //Get all the products from the web service using Axios.
             goToSpecificProduct: function (model) {
@@ -160,8 +169,6 @@
                         console.log(error);
                     });
             }
-
-
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
             //Load products from web service
@@ -172,7 +179,6 @@
         },
         computed: {
             filteredProducts() {
-                console.log("FILTERING");
                 return this.search
                     ? this.products.filter(product => product.name.includes(this.search) || product.model.includes(this.search) || product.color.includes(this.search))
                     : this.products
