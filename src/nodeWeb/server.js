@@ -68,8 +68,7 @@ function handleGetRequest(request, response) {
     }
 
     //If the last part of the path is a valid user id, return data about that user
-    var regEx = new RegExp('^[0-9]+$');//RegEx returns true if string is all digits.
-    if(regEx.test(pathEnd)){
+    if((pathEnd)){
         getSpecificProduct(response, pathEnd);
         return;
     }
@@ -140,9 +139,10 @@ function getTotalProductsCount(response, numItems, offset){
 
 
 /** Returns the phones with the specified ID */
-function getSpecificProduct(response, phoneId){
+function getSpecificProduct(response, phoneModel){
     //Build SQL query to select product with specified id.
-    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.id=" + phoneId;
+    phoneModel = phoneModel.replaceAll("%20", " "); //turn the url into a regular readable string for mysql
+    var sql = "SELECT products.name, products.url, products.price, phones.model, phones.color, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE phones.model LIKE '%" + phoneModel + "%'";
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {

@@ -107,7 +107,24 @@
                         //Handle error
                         console.log(error);
                     });
+            },
+
+            //Get all the products from the web service using Axios.
+            goToSpecificProduct: function (model) {
+                var localApp = this;
+                axios.get('/products')//Send GET request to products path
+                    .then(function (response) {//Request successful
+                        //Point products in data to returned array of products
+                        localApp.products = response.data.products;
+                        console.log(JSON.stringify(response.data.products));
+                    })
+                    .catch(function (error) {
+                        //Handle error
+                        console.log(error);
+                    });
             }
+
+
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
             //Load products from web service
