@@ -147,7 +147,8 @@ function getTotalProductsCount(response, numItems, offset){
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
 function getAllPhones(response, totNumItems, numItems, offset) {
     //Select the phones data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT * FROM phones";
+    // var sql = "SELECT * FROM phones";
+    var sql = "SELECT DISTINCT model FROM phones;"
 
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
