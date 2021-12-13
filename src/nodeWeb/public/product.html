@@ -63,12 +63,17 @@
             :current-page="currentPage"
             small
     >
-        <template #cell(name)="row">
-            {{ row.value.first }} {{ row.value.last }}
+        <template #cell(storage)="row">
+            <span  v-if="row.item.storage > '0'"> {{row.item.storage}} GB </span>
+            <span  v-else> Unknown </span>
+        </template>
+
+        <template #cell(price)="row">
+            E{{row.item.price}}
         </template>
 
         <template #cell(actions)="row">
-            <b-button size="sm" @click="info(row.item)" class="mr-1">
+            <b-button size="sm" @click="goToProductUrl(row.item)" class="mr-1">
                 Go To Site
             </b-button>
             <b-button size="sm" @click="row.toggleDetails">
@@ -127,6 +132,7 @@
                 {key: 'storage', label: 'Storage', sortable: true},
                 {key: 'color', label: 'Color', sortable: true},
                 {key: 'store', label: 'Store', sortable: true},
+                {key: 'price', label: 'Price', sortable: true},
                 {key: 'actions', label: 'Actions'}
             ]
         },
@@ -146,6 +152,9 @@
                         //Handle error
                         console.log(error);
                     });
+            },
+            goToProductUrl(item) {
+                window.open(item.url, '_blank').focus();
             }
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
