@@ -17,8 +17,7 @@ public class Main {
         AppConfig appConfig = new AppConfig();
         List<WebScraper> scraperManagerList = appConfig.scraperManager().getScraperList();
 
-        scraperManagerList.get(0).scrapeAPhoneModel(0, 1);
-
+        scraperManagerList.get(0).run();
         appConfig.scraperManager().getScraperList().get(0).getDao().shutDown();
     }
 }

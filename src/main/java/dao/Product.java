@@ -31,18 +31,23 @@ public class Product {
     @JoinColumn(name = "phone_id", nullable = false)
     private Phone phone;
 
+    @Column(name = "store")
+    private String store;
+
     @Autowired
-    public Product(String name, String price, String url) {
+    public Product(String name, String price, String url, String store) {
         this.name = name;
         this.price = new BigDecimal(price);
         this.url = url;
+        this.store = store;
     }
 
     @Autowired
-    public Product(String name, BigDecimal price, String url) {
+    public Product(String name, BigDecimal price, String url, String store) {
         this.name = name;
         this.price = price;
         this.url = url;
+        this.store = store;
     }
 
     public Product() {

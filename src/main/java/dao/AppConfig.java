@@ -35,6 +35,7 @@ public class AppConfig {
 
     @Bean
     public EbayScraper ebayScraper() {
+
         PhoneDao phoneDao = phoneDao();
         final long scrapeDelay_ms = 3000;
         final String titleClassName = "s-item__title";
@@ -42,7 +43,8 @@ public class AppConfig {
         final String imgUrlClassName = "s-item__image-img";
         final String urlClassName = "s-item__link";
         final String itemContainerClassName = "s-item";
-        return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName);
+        final String storeName = "Ebay";
+        return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean

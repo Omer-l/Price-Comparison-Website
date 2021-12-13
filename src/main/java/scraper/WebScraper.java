@@ -9,15 +9,19 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.List;
 
-public abstract class WebScraper {
+/**
+ * javadoc here
+ */
+public abstract class WebScraper implements Runnable {
     private final PhoneDao dao;
     private WebDriver driver;
     private long scrapeDelay_ms;
+    private String storeName;
 
-    public WebScraper(PhoneDao dao, long scrapeDelay_ms) {
+    public WebScraper(PhoneDao dao, long scrapeDelay_ms, String storeName) {
         this.dao = dao;
         initialiseDriver();
-//        app.sessionFactory();
+        this.storeName = storeName;
     }
 
     /**
@@ -27,6 +31,15 @@ public abstract class WebScraper {
      * @return                              a list of phones. (Same model as given in the parameter)
      */
     public List<Phone> scrapeAPhoneModel(int brandIndex, int productModelIndex) {
+        return null;
+    }
+
+
+    /**
+     * Scrapes the web for all the phone models across all brands.
+     * @return a list of phones belonging to all brands
+     */
+    public List<List<Phone>> scrapeAllPhonesAllBrands() {
         return null;
     }
 
@@ -44,7 +57,7 @@ public abstract class WebScraper {
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
 
-        System.setProperty("webdriver.chrome.driver", "/Users/omerkacar/Downloads/UNI/WEB/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\omerk\\Downloads\\chromedriver.exe");
         options.addArguments("--log-level=3");
 
         //Create instance of web driver - this must be on the path.
@@ -223,5 +236,13 @@ public abstract class WebScraper {
 
     public void setScrapeDelay_ms(long scrapeDelay_ms) {
         this.scrapeDelay_ms = scrapeDelay_ms;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
     }
 }

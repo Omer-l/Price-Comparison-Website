@@ -6,7 +6,7 @@
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
         <property name="hibernate.connection.url">jdbc:mysql://localhost/sampple?serverTimezone=UTC</property>
         <property name="hibernate.connection.username">root</property>
-        <property name="hibernate.connection.password"/>
+        <property name="hibernate.connection.password">root</property>
 
         <!-- Connection Pool Size -->
         <property name="hibernate.connection.pool_size">5</property>
