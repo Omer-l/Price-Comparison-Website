@@ -34,8 +34,7 @@ public class AmazonScraper extends WebScraper {
 
     private ArrayList<String> getAppleProductModelLinks() {
         ArrayList<String> links = new ArrayList<>();
-
-//        links.add()
+        links.add("https://www.amazon.co.uk/s?k=SIM-Free+%26+Unlocked+Mobile+Phones&i=electronics&rh=n%3A356496011%2Cp_n_condition-type%3A12319067031%2Cp_89%3AApple&dc&page=");
         return links;
     }
 
@@ -70,7 +69,6 @@ public class AmazonScraper extends WebScraper {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            System.out.println(getDriver().getPageSource());
 
             final List<WebElement> items = getDriver().findElements(By.xpath(itemContainerClassName));
             List<String> itemLinks = new ArrayList<>();
@@ -139,7 +137,7 @@ public class AmazonScraper extends WebScraper {
 
         List<List<Phone>> listOfAllProductsAllBrands = new ArrayList<>();
 
-        for (int brandIterator = 1; brandIterator < linksToProducts.size(); brandIterator++) { //go through each brand (i.e., Apple))
+        for (int brandIterator = 0; brandIterator < linksToProducts.size(); brandIterator++) { //go through each brand (i.e., Apple))
 
                 List<Phone> listOfProducts = scrapeAPhoneModel(brandIterator, 0);
                 listOfAllProductsAllBrands.add(listOfProducts);
