@@ -36,22 +36,6 @@ public class TechInBasketScraper extends WebScraper {
         initialiseStore();
     }
 
-    /**
-     * Initialises links, model names and driver
-     */
-    @Override
-    public void initialiseStore() {
-        initialisePhoneLinksAndModels();
-    }
-
-    /**
-     * initialises a 2D array, each list in the array contains a brand's phones.
-     *
-     * @return a 2D array, each list in the array contains a brand's phones
-     */
-    private void initialiseLinksAndProductModelsForAllBrands() {
-    }
-
     private ArrayList<String> getAppleProductModelLinks() {
         ArrayList<String> links = new ArrayList<>();
 
@@ -106,7 +90,7 @@ public class TechInBasketScraper extends WebScraper {
                         continue; // don't save the product. It is unknown.
                     final String productColor = getColor(productTitle);
                     final int productStorageSize = getStorageSize(productTitle);
-                    final float productDisplaySize = getDisplaySizeApple(productTitle);
+                    final float productDisplaySize = productBrand == "Samsung" ? getDisplaySizeSamsung(productModel) : getDisplaySizeApple(productTitle);
 
                     Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgUrl);
                     Product newProduct = new Product(productTitle, productPrice, productUrl, getStoreName());

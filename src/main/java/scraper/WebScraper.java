@@ -85,15 +85,17 @@ public abstract class WebScraper implements Runnable {
         else if (tmp.contains("graphite"))
             return "Graphite";
         else if (tmp.contains("blue"))
-            return "Blue;";
+            return "Blue";
         else if (tmp.contains("gold"))
             return "Gold";
         else if (tmp.contains("pink"))
             return "Pink";
+        else if (tmp.contains("phantom silver"))
+            return "Phantom Silver";
         else if (tmp.contains("silver"))
             return "Silver";
         else if (tmp.contains("space grey"))
-            return "Space Grey;";
+            return "Space Grey";
         else if (tmp.contains("red"))
             return "Red";
         else if (tmp.contains("midnight green"))
@@ -108,8 +110,10 @@ public abstract class WebScraper implements Runnable {
             return "Green";
         else if (tmp.contains("coral"))
             return "Coral";
-
-        return "Unknown";
+        else if (tmp.contains("aura"))
+            return "aura";
+        else
+            return "Unknown";
     }
 
     /**

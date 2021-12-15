@@ -32,23 +32,6 @@ public class WexScraper extends WebScraper {
         this.itemContainerClassName = itemContainerClassName;
         linksToProducts = new ArrayList<>();
         this.linksToProducts.add(getAppleProductModelLinks());
-        initialiseStore();
-    }
-
-    /**
-     * Initialises links, model names and driver
-     */
-    @Override
-    public void initialiseStore() {
-        initialisePhoneLinksAndModels();
-    }
-
-    /**
-     * initialises a 2D array, each list in the array contains a brand's phones.
-     *
-     * @return a 2D array, each list in the array contains a brand's phones
-     */
-    private void initialiseLinksAndProductModelsForAllBrands() {
     }
 
     private ArrayList<String> getAppleProductModelLinks() {

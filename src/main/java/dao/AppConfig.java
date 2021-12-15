@@ -25,11 +25,42 @@ public class AppConfig {
         scraperList.add(ebayScraper());
         scraperList.add(techInBasketScraper());
         scraperList.add(wexScraper());
+        scraperList.add(amazonScraper());
 
         //adds it to scraper manager, which will then eb used to run each scraper
         scraperManager.setScraperList(scraperList);
 
         return scraperManager;
+    }
+
+    @Bean
+    public WexScraper wexScraper() {
+
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 1;
+        final String titleClassName = "-title";
+        final String productInfoContainer = "-details";
+        final String priceClassName = "--price";
+        final String imgUrlClassName = "-image";
+        final String urlClassName = "-imagerating";
+        final String itemContainerClassName = "WEX-productCard__container";
+        final String storeName = "Wex";
+        return new WexScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
+    }
+
+    @Bean
+    public AmazonScraper amazonScraper() {
+
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 1;
+        final String titleClassName = "a[class=\"a-link-normal a-text-normal\"]";
+        final String productInfoContainer = "-details";
+        final String priceClassName = "a-price-whole";
+        final String imgUrlClassName = "s-image";
+        final String urlClassName = "a[class=\"a-link-normal a-text-normal\"]";
+        final String itemContainerClassName = "//div[@class='s-include-content-margin s-latency-cf-section s-border-bottom s-border-top']";
+        final String storeName = "Amazon";
+        return new AmazonScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean
@@ -59,21 +90,6 @@ public class AppConfig {
         final String itemContainerClassName = "s-item";
         final String storeName = "Ebay";
         return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
-    }
-
-    @Bean
-    public WexScraper wexScraper() {
-
-        PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 1;
-        final String titleClassName = "-title";
-        final String productInfoContainer = "-details";
-        final String priceClassName = "--price";
-        final String imgUrlClassName = "-image";
-        final String urlClassName = "-imagerating";
-        final String itemContainerClassName = "WEX-productCard__container";
-        final String storeName = "Wex";
-        return new WexScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean
