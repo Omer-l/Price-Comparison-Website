@@ -66,7 +66,7 @@ public class Product {
         return price;
     }
 
-    public static String getPrice(String price) { //example use: £34.95 to £35.95 -> £34.95
+    public static String renderPrice(String price) { //example use: £34.95 to £35.95 -> £34.95
         String tmp = "";
 
         for (char c : price.toCharArray())

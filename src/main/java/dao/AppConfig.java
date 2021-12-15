@@ -6,12 +6,11 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.springframework.context.annotation.*;
 import scraper.EbayScraper;
+import scraper.TechInBasketScraper;
 import scraper.ScraperManager;
 import scraper.WebScraper;
 
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 
 @Configuration
 public class AppConfig {
@@ -27,10 +26,26 @@ public class AppConfig {
         //creates a list of web scrapers to run
         ArrayList<WebScraper> scraperList = new ArrayList();
         scraperList.add(ebayScraper());
+        scraperList.add(techInBasketScraper());
 //        scraperList.get(0).
         scraperManager.setScraperList(scraperList);
 
         return scraperManager;
+    }
+
+    @Bean
+    public TechInBasketScraper techInBasketScraper() {
+
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 1;
+        final String titleClassName = "product-item-link";
+        final String productInfoContainer = "productInfo";
+        final String priceClassName = "price";
+        final String imgUrlClassName = "product-image-photo";
+        final String urlClassName = "product-item-link";
+        final String itemContainerClassName = "product-item";
+        final String storeName = "techinbasket";
+        return new TechInBasketScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean

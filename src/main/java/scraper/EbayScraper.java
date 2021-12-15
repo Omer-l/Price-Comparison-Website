@@ -14,24 +14,22 @@ public class EbayScraper extends WebScraper {
 
     private ArrayList<ArrayList<String>> linksToProducts; //2D List of different brand's products links -> i.e. list of index 0 is a list of Apple's product links
     private ArrayList<ArrayList<String>> productModelNames;  //2D List of different model's names for each brand -> i.e. index 0 contains is a list of Apple's product model names
-    private final String TITLE_CLASS_NAME;
-    private final String PRICE_CLASS_NAME;
-    private final String IMG_URL_CLASS_NAME;
-    private final String URL_CLASS_NAME;
-    private final String ITEM_CONTAINER_CLASS_NAME;
+    private final String titleClassName;
+    private final String priceClassName;
+    private final String imgUrlClassName;
+    private final String urlClassName;
+    private final String itemContainerClassName;
 
 
-    public EbayScraper(PhoneDao phoneDao, long scrapeDelay_ms, String TITLE_CLASS_NAME, String PRICE_CLASS_NAME, String IMG_URL_CLASS_NAME, String URL_CLASS_NAME, String ITEM_CONTAINER_CLASS_NAME, String storeName) {
+    public EbayScraper(PhoneDao phoneDao, long scrapeDelay_ms, String titleClassName, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName, String storeName) {
         super(phoneDao, scrapeDelay_ms, storeName);
-        this.TITLE_CLASS_NAME = TITLE_CLASS_NAME;
-        this.PRICE_CLASS_NAME = PRICE_CLASS_NAME;
-        this.IMG_URL_CLASS_NAME = IMG_URL_CLASS_NAME;
-        this.URL_CLASS_NAME = URL_CLASS_NAME;
-        this.ITEM_CONTAINER_CLASS_NAME = ITEM_CONTAINER_CLASS_NAME;
+        this.titleClassName = titleClassName;
+        this.priceClassName = priceClassName;
+        this.imgUrlClassName = imgUrlClassName;
+        this.urlClassName = urlClassName;
+        this.itemContainerClassName = itemContainerClassName;
         linksToProducts = new ArrayList<>();
         productModelNames = new ArrayList<>();
-        linksToProducts.add(getAppleProductModelLinks());
-        productModelNames.add(getAppleProductModelNames());
         initialiseStore();
     }
 
@@ -56,7 +54,6 @@ public class EbayScraper extends WebScraper {
     private ArrayList<String> getAppleProductModelLinks() {
         ArrayList<String> links = new ArrayList<>();
 //        EBAY LINKS TO iPhones
-        links.add("https://www.ebay.co.uk/b/Apple-Mobile-Smartphones/9355/bn_449685?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                     // ->All iphones
         links.add("https://www.ebay.co.uk/b/Apple-iPhone-8-Mobile-Phones-Smartphones/9355/bn_86147745?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");   // ->iphone 8
         links.add("https://www.ebay.co.uk/b/iPhone-X-Phones/9355/bn_86757129?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                            // -> iphone x
         links.add("https://www.ebay.co.uk/b/iPhone-XR-Phones/9355/bn_7109728856?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                         // -> iphone xs
@@ -75,7 +72,6 @@ public class EbayScraper extends WebScraper {
         // Indexes 0 to 10      -> iphones.
 //      MODEL NAMES OF THE IPHONE LINKS
         ArrayList<String> phoneModelNames = new ArrayList<>();
-        phoneModelNames.add("iphone");
         phoneModelNames.add("iphone 8");
         phoneModelNames.add("iphone x");
         phoneModelNames.add("iphone xr");
@@ -127,27 +123,27 @@ public class EbayScraper extends WebScraper {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            final List<WebElement> items = getDriver().findElements(By.className(ITEM_CONTAINER_CLASS_NAME));
+            final List<WebElement> items = getDriver().findElements(By.className(itemContainerClassName));
             List<String> itemLinks = new ArrayList<>();
 
             System.out.println("\n**********\nPAGE NUMBER: " + pageIterator + "\n**********");
 
             for (WebElement item : items) {
                 try {
-                    String productTitle = item.findElement(By.className(TITLE_CLASS_NAME)).getText();
+                    String productTitle = item.findElement(By.className(titleClassName)).getText();
                     //get the products details.
 
                     if (validProduct(productTitle) && (productTitle.toLowerCase().contains(productModelNames.get(brandIndex).get(productModelIndex)))) { //validates that the product is in fact a product
 
-                        final String productPrice = Product.getPrice(item.findElement(By.className(PRICE_CLASS_NAME)).getText());
-                        final String productImgURL = item.findElement(By.className(IMG_URL_CLASS_NAME)).getAttribute("src");
-                        String productUrl = item.findElement(By.className(URL_CLASS_NAME)).getAttribute("href");
+                        final String productPrice = Product.renderPrice(item.findElement(By.className(priceClassName)).getText());
+                        final String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
+                        String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
                         productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
                         final String productBrand = getBrand(productTitle);
-                        final String productModel = getModel(productTitle);
+                        final String productModel = getModelApple(productTitle);
                         final String productColor = getColor(productTitle);
                         final int productStorageSize = getStorageSize(productTitle);
-                        final float productDisplaySize = getDisplaySize(productTitle);
+                        final float productDisplaySize = getDisplaySizeApple(productTitle);
 
                         itemLinks.add(productUrl);
                         Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);
@@ -190,13 +186,10 @@ public class EbayScraper extends WebScraper {
     public List<List<Phone>> scrapeAllPhonesAllBrands() {
 
         List<List<Phone>> listOfAllProductsAllBrands = new ArrayList<>();
-        int pageIterator = 1;
-        //get pages
-        int tmpIt = 1;
 
         for (int brandIterator = 0; brandIterator < productModelNames.size(); brandIterator++) { //go through each brand (i.e., Apple))
 
-            for (int phoneModelIterator = 1; phoneModelIterator < productModelNames.get(brandIterator).size(); phoneModelIterator++) { //each brand's models{
+            for (int phoneModelIterator = 0; phoneModelIterator < productModelNames.get(brandIterator).size(); phoneModelIterator++) { //each brand's models{
                 List<Phone> listOfProducts = scrapeAPhoneModel(brandIterator, phoneModelIterator);
                 listOfAllProductsAllBrands.add(listOfProducts);
             }
@@ -205,9 +198,12 @@ public class EbayScraper extends WebScraper {
         return listOfAllProductsAllBrands;
     }
 
-
+    /**
+     * Runs the web scraper
+     */
     @Override
     public void run() {
         scrapeAllPhonesAllBrands();
+        getDriver().close();
     }
 }
