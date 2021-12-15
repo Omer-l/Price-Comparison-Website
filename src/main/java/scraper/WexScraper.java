@@ -73,7 +73,7 @@ public class WexScraper extends WebScraper {
                 if (validProduct(productTitle)) { //is it even a phone?
                     String productPrice = Product.renderPrice(item.findElement(By.className(priceClassName)).getText());
                     String productImgUrl = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
-                    String productUrl = item.findElement(By.cssSelector("a[class=\"ng-scope\"]")).getAttribute("href");
+                    String productUrl = item.findElement(By.cssSelector(urlClassName)).getAttribute("href");
                     final String productBrand = getBrand(productTitle);
 
                     final String productModel = productBrand == "Samsung" ? getModelSamsung(productTitle) : getModelApple(productTitle);

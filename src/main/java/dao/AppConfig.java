@@ -26,6 +26,7 @@ public class AppConfig {
         scraperList.add(techInBasketScraper());
         scraperList.add(wexScraper());
         scraperList.add(amazonScraper());
+        scraperList.add(jdWilliamsScraper());
 
         //adds it to scraper manager, which will then eb used to run each scraper
         scraperManager.setScraperList(scraperList);
@@ -42,10 +43,25 @@ public class AppConfig {
         final String productInfoContainer = "-details";
         final String priceClassName = "--price";
         final String imgUrlClassName = "-image";
-        final String urlClassName = "-imagerating";
+        final String urlClassName = "a[class=\"ng-scope\"]";
         final String itemContainerClassName = "WEX-productCard__container";
         final String storeName = "Wex";
         return new WexScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
+    }
+
+    @Bean
+    public JdWilliamsScraper jdWilliamsScraper() {
+
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 1;
+        final String titleClassName = "js-product-title-anchor";
+        final String productInfoContainer = "js-info-anchor";
+        final String priceClassName = "product-price__now";
+        final String imgUrlClassName = "js-plp-image";
+        final String urlClassName = "js-product-title-anchor";
+        final String itemContainerClassName = "product__item";
+        final String storeName = "JD Williams";
+        return new JdWilliamsScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean
