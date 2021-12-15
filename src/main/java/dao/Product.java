@@ -6,6 +6,14 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+/**
+ * The class wraps the object in a form that is ready to send the data to the database. For every attribute, a column is
+ * associated with the database.
+ * This class has a foreign key relationship with Phone {@link Phone}
+ *
+ * @author Omer Kacar
+ * @see Phone
+ */
 @Component
 @Entity
 @Table(name = "products")

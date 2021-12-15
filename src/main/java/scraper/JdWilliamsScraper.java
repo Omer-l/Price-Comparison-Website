@@ -6,10 +6,15 @@ import dao.Product;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This scraper collects Apple and Samsung products from the JD Williams store and stores them to the
+ * database.
+ * @author Omer Kacar
+ * @see WebScraper
+ */
 public class JdWilliamsScraper extends WebScraper {
 
 

@@ -6,11 +6,16 @@ import dao.Product;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class TechInBasketScraper extends WebScraper {
+/**
+ * This scraper collects Apple and Samsung products from the Techinthebasket store and stores them to the
+ * database.
+ * @author Omer Kacar
+ * @see WebScraper
+ */
+public class TechInTheBasketScraper extends WebScraper {
 
 
     private ArrayList<ArrayList<String>> linksToProducts; //2D List of different brand's products links -> i.e. list of index 0 is a list of Apple's product links
@@ -22,7 +27,7 @@ public class TechInBasketScraper extends WebScraper {
     private final String itemContainerClassName;
 
 
-    public TechInBasketScraper(PhoneDao phoneDao, long scrapeDelay_ms, String titleClassName, String productInfoContainer, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName, String storeName) {
+    public TechInTheBasketScraper(PhoneDao phoneDao, long scrapeDelay_ms, String titleClassName, String productInfoContainer, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName, String storeName) {
         super(phoneDao, scrapeDelay_ms, storeName);
         this.titleClassName = titleClassName;
         this.productInfoContainer = productInfoContainer;
@@ -33,7 +38,6 @@ public class TechInBasketScraper extends WebScraper {
         linksToProducts = new ArrayList<>();
         this.linksToProducts.add(getAppleProductModelLinks());
         this.linksToProducts.add(getSamsungProductModelLinks());
-        initialiseStore();
     }
 
     private ArrayList<String> getAppleProductModelLinks() {

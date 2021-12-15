@@ -10,7 +10,9 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.List;
 
 /**
- * javadoc here
+ * The skeleton for all web scrapers in this package is provided by this class.
+ * Contains static methods for obtaining product information.
+ * @author Omer Kacar
  */
 public abstract class WebScraper implements Runnable {
     private final PhoneDao dao;
@@ -34,9 +36,6 @@ public abstract class WebScraper implements Runnable {
         return null;
     }
 
-    public List<Phone> scrapeAPhoneModel(int brandIndex) {
-        return null;
-    }
     /**
      * Scrapes the web for all the phone models across all brands.
      * @return a list of phones belonging to all brands
@@ -45,16 +44,10 @@ public abstract class WebScraper implements Runnable {
         return null;
     }
 
-    public void initialiseStore() {
-    }
-
-    public void initialisePhoneLinksAndModels() {
-    }
-
     /**
      * Sets up the driver.
      */
-    public void initialiseDriver() {
+    private void initialiseDriver() {
         //We need an options class to run headless - not needed if we want default options
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
@@ -64,8 +57,6 @@ public abstract class WebScraper implements Runnable {
 
         //Create instance of web driver - this must be on the path.
         this.driver = new ChromeDriver(options);
-
-//        driver.quit();
     }
 
     /**

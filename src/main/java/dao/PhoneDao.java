@@ -7,7 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Class for interacting with databases. Updates existing rows and columns, searches, and adds newly created rows.
+ * @author Omer Kacar
+ * @see AppConfig
+ */
 @Configuration
 public class PhoneDao {
     private SessionFactory sessionFactory;
@@ -53,10 +57,6 @@ public class PhoneDao {
 
             session.getTransaction().commit();
         }
-    }
-
-    public void deletePhone() {
-
     }
 
     /**

@@ -3,7 +3,16 @@ package dao;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.util.ListIterator;
 
+/**
+ * The class wraps the object in a form that is ready to send the data to the database. For every attribute, a column is
+ * associated with the database.
+ * This class has a foreign key relationship with Phone {@link Product}
+ *
+ * @author Omer Kacar
+ * @see Product
+ */
 @Component
 @Entity
 @Table(name = "phones")
@@ -102,9 +111,6 @@ public class Phone {
     @Override
     public String toString() {
         return "dao.Phone{" +
-//                    "Name='" + getName() + '\'' +
-//                    "price='£" + getPrice() + '\'' +
-//                    "url='" + getUrl() + '\'' +
                 "brand='" + brand + '\'' +
                 ", model='" + model + '\'' +
                 ", color=" + color +

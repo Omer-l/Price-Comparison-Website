@@ -9,6 +9,10 @@ import scraper.*;
 
 import java.util.ArrayList;
 
+/**
+ * Web scrapers, data access objects, and session factories are all provided in this class, which makes use of Spring to
+ * put everything together.
+ */
 @Configuration
 public class AppConfig {
 
@@ -34,6 +38,10 @@ public class AppConfig {
         return scraperManager;
     }
 
+    /**
+     * Gets the scraper for Wex store
+     * @return  the Wex scraper
+     */
     @Bean
     public WexScraper wexScraper() {
 
@@ -49,6 +57,10 @@ public class AppConfig {
         return new WexScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
+    /**
+     * Gets the scraper for JD WIlliams store
+     * @return  the JD WIlliams scraper
+     */
     @Bean
     public JdWilliamsScraper jdWilliamsScraper() {
 
@@ -64,6 +76,10 @@ public class AppConfig {
         return new JdWilliamsScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
+    /**
+     * Gets the scraper for Amazon store
+     * @return  the Amazon scraper
+     */
     @Bean
     public AmazonScraper amazonScraper() {
 
@@ -79,8 +95,12 @@ public class AppConfig {
         return new AmazonScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
+    /**
+     * Gets the scraper for techinbasket store
+     * @return  the techinbasket scraper
+     */
     @Bean
-    public TechInBasketScraper techInBasketScraper() {
+    public TechInTheBasketScraper techInBasketScraper() {
 
         PhoneDao phoneDao = phoneDao();
         final long scrapeDelay_ms = 1;
@@ -91,9 +111,13 @@ public class AppConfig {
         final String urlClassName = "product-item-link";
         final String itemContainerClassName = "product-item";
         final String storeName = "techinbasket";
-        return new TechInBasketScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
+        return new TechInTheBasketScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
+    /**
+     * Gets the scraper for Ebay store
+     * @return  the Ebay scraper
+     */
     @Bean
     public EbayScraper ebayScraper() {
 
@@ -108,6 +132,10 @@ public class AppConfig {
         return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
+    /**
+     * Gets the data access object for the database
+     * @return  the data access object that all scrapers will utilise.
+     */
     @Bean
     public PhoneDao phoneDao() {
         PhoneDao phoneDao = new PhoneDao();
@@ -115,6 +143,10 @@ public class AppConfig {
         return phoneDao;
     }
 
+    /**
+     * Gets the session factory used to connect with the database
+     * @return  the session factory
+     */
     @Bean
     public SessionFactory sessionFactory() {
         if(sessionFactory == null) { //ensures sessionFactory is built only once.

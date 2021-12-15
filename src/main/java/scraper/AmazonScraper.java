@@ -6,10 +6,15 @@ import dao.Product;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This scraper collects Apple and Samsung products from the Amazon store and stores them to the
+ * database.
+ * @author Omer Kacar
+ * @see WebScraper
+ */
 public class AmazonScraper extends WebScraper {
 
     private ArrayList<ArrayList<String>> linksToProducts; //2D List of different brand's products links -> i.e. list of index 0 is a list of Apple's product links
