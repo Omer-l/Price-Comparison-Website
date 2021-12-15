@@ -31,6 +31,7 @@ public class EbayScraper extends WebScraper {
         linksToProducts = new ArrayList<>();
         productModelNames = new ArrayList<>();
         linksToProducts.add(getAppleProductModelLinks());
+        linksToProducts.add(getSamsungProductModelLinks());
         productModelNames.add(getAppleProductModelNames());
     }
 
@@ -48,6 +49,12 @@ public class EbayScraper extends WebScraper {
         links.add("https://www.ebay.co.uk/b/Apple-iPhone-12-Pro/9355/bn_7117593357?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                      // -> iphone 12 pro
         links.add("https://www.ebay.co.uk/b/Apple-iPhone-12-Pro-Max/9355/bn_7117596158?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                  // -> iphone 12 pro max
 
+        return links;
+    }
+
+    private ArrayList<String> getSamsungProductModelLinks() {
+        ArrayList<String> links = new ArrayList<>();
+        links.add("https://www.ebay.co.uk/e/_electronics/best-selling-new-phones?rt=nc&_pgn=");
         return links;
     }
 
@@ -86,14 +93,13 @@ public class EbayScraper extends WebScraper {
 
 
     /**
-     * scrapes for a phone, given the model of the phone.
+     * scrapes for Apple phones, given the model of the phone.
      *
      * @param brandIndex        which brand? i.e. index 0 can be Apple.
      * @param productModelIndex which product model? i.e. index 4 can be Apple's "iphone XR"
      * @return a list of phones. (Same model as given in the parameter)
      */
-    @Override
-    public List<Phone> scrapeAPhoneModel(int brandIndex, int productModelIndex) {
+    public List<Phone> scrapeApplePhoneModel(int brandIndex, int productModelIndex) {
 
         ArrayList<Phone> listOfProducts = new ArrayList<>();
         int pageIterator = 1;
@@ -163,6 +169,80 @@ public class EbayScraper extends WebScraper {
         return listOfProducts;
     }
 
+    /**
+     * scrapes for Samsung phones, given the model of the phone.
+     * @return a list of phones. (Same model as given in the parameter)
+     */
+    private List<Phone> scrapeSamsungPhones() {
+
+        ArrayList<Phone> listOfProducts = new ArrayList<>();
+        int pageIterator = 1;
+        //get pages
+        int tmpIt = 1;
+        while (pageIterator < 5) {
+            //get next page
+            getDriver().get(linksToProducts.get(1).get(0) + pageIterator + "&LH_BIN=1&LH_ItemCondition=3");
+
+            //Wait for page to load
+            try {
+                Thread.sleep(getScrapeDelay_ms());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            final List<WebElement> items = getDriver().findElements(By.className(itemContainerClassName));
+            List<String> itemLinks = new ArrayList<>();
+
+            System.out.println("\n**********\nPAGE NUMBER: " + pageIterator + "\n**********");
+
+            for (WebElement item : items) {
+                try {
+                    String productTitle = item.findElement(By.className(titleClassName)).getText();
+                    final String productModel = getModelSamsung(productTitle);
+                    if (productModel == "")
+                        continue; // don't save the product. It is unknown.
+                    if (validProduct(productTitle)) { //validates that the product is in fact a product
+                        //get the products details.
+                        final String productPrice = Product.renderPrice(item.findElement(By.className(priceClassName)).getText());
+                        final String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
+                        String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
+                        productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
+                        final String productBrand = getBrand(productTitle);
+                        final String productColor = getColor(productTitle);
+                        final int productStorageSize = getStorageSize(productTitle);
+                        final float productDisplaySize = getDisplaySizeSamsung(productTitle);
+
+                        itemLinks.add(productUrl);
+                        Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);
+                        Product newProduct = new Product(productTitle, productPrice, productUrl, getStoreName());
+
+                        Phone phoneMapped = getDao().findPhone(newPhone);
+                        Product productMapped = getDao().findProduct(newProduct);
+
+                        if (phoneMapped != null)
+                            newProduct.setPhone(phoneMapped);
+                        else {
+                            getDao().addPhone(newPhone);
+                            newProduct.setPhone(newPhone);
+                        }
+                        if (productMapped == null) //ensures duplicate phone is not added.
+                            getDao().addProduct(newProduct);
+
+                        System.out.println(tmpIt + ": " + newPhone.toString());
+                        listOfProducts.add(newPhone);
+                        tmpIt++;
+                    }
+                } catch (NoSuchElementException nsee) {
+                    System.out.println("This item has at least one missing attribute.");
+                    nsee.printStackTrace();
+                }
+            }
+            tmpIt = 1;
+            pageIterator++;
+        }
+
+        return listOfProducts;
+    }
+
 
     /**
      * Scrapes the web for all the phone models across all brands.
@@ -176,7 +256,7 @@ public class EbayScraper extends WebScraper {
         for (int brandIterator = 0; brandIterator < productModelNames.size(); brandIterator++) { //go through each brand (i.e., Apple))
 
             for (int phoneModelIterator = 0; phoneModelIterator < productModelNames.get(brandIterator).size(); phoneModelIterator++) { //each brand's models{
-                List<Phone> listOfProducts = scrapeAPhoneModel(brandIterator, phoneModelIterator);
+                List<Phone> listOfProducts = scrapeApplePhoneModel(brandIterator, phoneModelIterator);
                 listOfAllProductsAllBrands.add(listOfProducts);
             }
         }
@@ -190,6 +270,7 @@ public class EbayScraper extends WebScraper {
     @Override
     public void run() {
         scrapeAllPhonesAllBrands();
+        scrapeSamsungPhones();
         getDriver().close();
     }
 }
