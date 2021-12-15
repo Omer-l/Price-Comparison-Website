@@ -136,6 +136,8 @@ public abstract class WebScraper implements Runnable {
             return 256;
         else if(tmp.contains("512"))
             return 512;
+        else if(tmp.contains("1TB") || tmp.contains("1000 TB") || tmp.contains("1000TB"))
+            return 1000;
         else
             return 0;
     }
