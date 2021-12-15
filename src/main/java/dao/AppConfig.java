@@ -5,10 +5,7 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.springframework.context.annotation.*;
-import scraper.EbayScraper;
-import scraper.TechInBasketScraper;
-import scraper.ScraperManager;
-import scraper.WebScraper;
+import scraper.*;
 
 import java.util.ArrayList;
 
@@ -27,7 +24,9 @@ public class AppConfig {
         ArrayList<WebScraper> scraperList = new ArrayList();
         scraperList.add(ebayScraper());
         scraperList.add(techInBasketScraper());
-//        scraperList.get(0).
+        scraperList.add(wexScraper());
+
+        //adds it to scraper manager, which will then eb used to run each scraper
         scraperManager.setScraperList(scraperList);
 
         return scraperManager;
@@ -60,6 +59,21 @@ public class AppConfig {
         final String itemContainerClassName = "s-item";
         final String storeName = "Ebay";
         return new EbayScraper(phoneDao, scrapeDelay_ms, titleClassName, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
+    }
+
+    @Bean
+    public WexScraper wexScraper() {
+
+        PhoneDao phoneDao = phoneDao();
+        final long scrapeDelay_ms = 1;
+        final String titleClassName = "-title";
+        final String productInfoContainer = "-details";
+        final String priceClassName = "--price";
+        final String imgUrlClassName = "-image";
+        final String urlClassName = "-imagerating";
+        final String itemContainerClassName = "WEX-productCard__container";
+        final String storeName = "Wex";
+        return new WexScraper(phoneDao, scrapeDelay_ms, titleClassName, productInfoContainer, priceClassName, imgUrlClassName, urlClassName, itemContainerClassName, storeName);
     }
 
     @Bean

@@ -30,23 +30,6 @@ public class EbayScraper extends WebScraper {
         this.itemContainerClassName = itemContainerClassName;
         linksToProducts = new ArrayList<>();
         productModelNames = new ArrayList<>();
-        initialiseStore();
-    }
-
-    /**
-     * Initialises links, model names and driver
-     */
-    @Override
-    public void initialiseStore() {
-        initialisePhoneLinksAndModels();
-    }
-
-    /**
-     * initialises a 2D array, each list in the array contains a brand's phones.
-     *
-     * @return a 2D array, each list in the array contains a brand's phones
-     */
-    private void initialiseLinksAndProductModelsForAllBrands() {
         linksToProducts.add(getAppleProductModelLinks());
         productModelNames.add(getAppleProductModelNames());
     }
@@ -68,9 +51,12 @@ public class EbayScraper extends WebScraper {
         return links;
     }
 
+    /**
+     * Initialises all the iPhone models that exist at Ebay
+     * @return  a list of iPhone models that a present at Ebay
+     */
     private ArrayList<String> getAppleProductModelNames() {
         // Indexes 0 to 10      -> iphones.
-//      MODEL NAMES OF THE IPHONE LINKS
         ArrayList<String> phoneModelNames = new ArrayList<>();
         phoneModelNames.add("iphone 8");
         phoneModelNames.add("iphone x");

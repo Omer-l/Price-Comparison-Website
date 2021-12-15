@@ -78,7 +78,7 @@ public abstract class WebScraper implements Runnable {
 
         if(tmp.contains("black"))
             return "Black";
-        else if (tmp.contains("white") || tmp.contains("Weiß"))
+        else if (tmp.contains("white") || tmp.contains("weiß"))
             return "White";
         else if (tmp.contains("pacific blue"))
             return "Pacific Blue";

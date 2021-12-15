@@ -10,7 +10,7 @@ import org.openqa.selenium.WebElement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TechInBasketScraper extends WebScraper {
+public class WexScraper extends WebScraper {
 
 
     private ArrayList<ArrayList<String>> linksToProducts; //2D List of different brand's products links -> i.e. list of index 0 is a list of Apple's product links
@@ -22,7 +22,7 @@ public class TechInBasketScraper extends WebScraper {
     private final String itemContainerClassName;
 
 
-    public TechInBasketScraper(PhoneDao phoneDao, long scrapeDelay_ms, String titleClassName, String productInfoContainer, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName, String storeName) {
+    public WexScraper(PhoneDao phoneDao, long scrapeDelay_ms, String titleClassName, String productInfoContainer, String priceClassName, String imgUrlClassName, String urlClassName, String itemContainerClassName, String storeName) {
         super(phoneDao, scrapeDelay_ms, storeName);
         this.titleClassName = titleClassName;
         this.productInfoContainer = productInfoContainer;
@@ -32,7 +32,6 @@ public class TechInBasketScraper extends WebScraper {
         this.itemContainerClassName = itemContainerClassName;
         linksToProducts = new ArrayList<>();
         this.linksToProducts.add(getAppleProductModelLinks());
-        this.linksToProducts.add(getSamsungProductModelLinks());
         initialiseStore();
     }
 
@@ -55,13 +54,7 @@ public class TechInBasketScraper extends WebScraper {
     private ArrayList<String> getAppleProductModelLinks() {
         ArrayList<String> links = new ArrayList<>();
 
-        links.add("https://www.techinthebasket.com/mobiles/mobile-phones/apple.html?product_list_limit=1008");   // all iphones
-        return links;
-    }
-
-    private ArrayList<String> getSamsungProductModelLinks() {
-        ArrayList<String> links = new ArrayList<>();
-        links.add("https://www.techinthebasket.com/mobiles.html?manufacturer=28&product_list_limit=100");
+        links.add("https://www.wexphotovideo.com/phones/#p=categoryPath%3A%22computing%3Ephones%22&facet.multiselect=true&filter=brand_uFilter:%22Apple%22&fields=&pagetype=boolean&rows=96&start=0&version=V2&viewType=LIST&facet.version=V2");   // all iphones
         return links;
     }
 
@@ -97,7 +90,7 @@ public class TechInBasketScraper extends WebScraper {
                 if (validProduct(productTitle)) { //is it even a phone?
                     String productPrice = Product.renderPrice(item.findElement(By.className(priceClassName)).getText());
                     String productImgUrl = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
-                    String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
+                    String productUrl = item.findElement(By.cssSelector("a[class=\"ng-scope\"]")).getAttribute("href");
                     final String productBrand = getBrand(productTitle);
 
                     final String productModel = productBrand == "Samsung" ? getModelSamsung(productTitle) : getModelApple(productTitle);
