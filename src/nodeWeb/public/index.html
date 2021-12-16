@@ -44,7 +44,7 @@
         </tr>
         </tbody>
     </table>
-    <div>Page Number: {{pageNumber}}</div>
+<!--    <div>Page Number: {{pageNumber}}</div>-->
 </div>
 <script>
 
@@ -52,8 +52,9 @@
         el: '#app',
         data: {
             phones: [],
+            pages: [],
             search: '',
-            pageNumber: '',
+            totalPhones: ''
         },
         methods: {
             //Get all the phones from the web service using Axios.
@@ -76,6 +77,22 @@
                             console.log(error);
                         });
             },
+            loadPageNumbers() {
+                var localApp = this;
+                axios.get('/totalNumberOfPhones') //Send GET request to get all products
+                    .then(function (response) {//Request successful
+                        localApp.totalPhones = response.data.pageNumbers;
+                        console.log("PARSED: " + parseInt(localApp.totalPhones));
+                        console.log("PAGE NUMBERS: " +  localApp.totalPhones);
+                        //Point phones in data to returned array of phones
+                        localApp.phones = response.data.phones;
+                        console.log(JSON.stringify(localApp.totalPhones));
+                    })
+                    .catch(function (error) {
+                        //Handle error
+                        console.log(error);
+                    });
+            },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
             }
@@ -83,6 +100,7 @@
         created: function () {//Vue lifecycle hook, called when data is loaded.
             //Load products from web service
             this.loadProducts();
+            this.loadPageNumbers();
 
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);

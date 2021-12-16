@@ -33,6 +33,7 @@ var connectionPool = mysql.createConnection({
 app.get('/products/*', handleGetRequest);//Subfolders
 app.get('/products', handleGetRequest);
 app.get('/phones', handleGetRequest);
+app.get('/totalNumberOfPhoneModels', handleGetRequest);
 
 
 
@@ -49,12 +50,17 @@ function handleGetRequest(request, response) {
     //Get the pagination properties if they have been set. Will be undefined if not set.
     var numItems = queries['num_items'];
     var offset = queries['offset'];
-    console.log("num_items: " + numItems + " .... offset: " + offset); //DEL
     //Split the path of the request into its components
     var pathArray = urlObj.pathname.split("/");
 
     //Get the last part of the path
     var pathEnd = pathArray[pathArray.length - 1];
+
+    //If path ends with 'products' we return all products
+    if(pathEnd === 'totalNumberOfPhoneModels'){
+        getOnlyTotalNumberOfPhoneModels(response);//This function calls the getAllProducts function in its callback
+        return;
+    }
 
     //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
@@ -84,6 +90,40 @@ function handleGetRequest(request, response) {
     response.send("{error: 'Path not recognized', url: " + request.url + "}");
 }
 
+//Gets only the total number of phones.
+function getOnlyTotalNumberOfPhoneModels(response) {
+    var query1 = "SELECT * FROM phones WHERE url_image NOT LIKE '.gif' GROUP BY model;";
+    var query2 = "SELECT FOUND_ROWS() AS count;";
+
+    //Execute the query
+    connectionPool.query(query1, function (err, result) {
+
+        //Check for errors
+        if (err){
+            console.log(err);
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': + err});
+            return;
+        }
+    });
+    connectionPool.query(query2, function (err, totalCount) {
+
+        //Check for errors
+        if (err) {
+            console.log(err);
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': +err});
+            return;
+        }
+
+        //Create JavaScript object that combines total number of items with data
+        var returnObj = {pageNumbers: totalCount[0].count};
+        //Return results in JSON format
+        response.json(returnObj);
+    });
+}
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
