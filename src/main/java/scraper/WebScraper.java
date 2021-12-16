@@ -14,7 +14,7 @@ import java.util.List;
  * Contains static methods for obtaining product information.
  * @author Omer Kacar
  */
-public abstract class WebScraper implements Runnable {
+public abstract class WebScraper extends Thread {
     private final PhoneDao dao;
     private WebDriver driver;
     private long scrapeDelay_ms;
@@ -64,7 +64,7 @@ public abstract class WebScraper implements Runnable {
      * @param title     String where the color is stated
      * @return          Color in given title
      */
-    public String getColor(String title) {
+    public String parseColor(String title) {
         String tmp = title.toLowerCase(); //to make color easier to find
 
         if(tmp.contains("black"))
@@ -102,7 +102,13 @@ public abstract class WebScraper implements Runnable {
         else if (tmp.contains("coral"))
             return "Coral";
         else if (tmp.contains("aura"))
-            return "aura";
+            return "Aura";
+        else if (tmp.contains("violet"))
+            return "Violet";
+        else if (tmp.contains("gray") || tmp.contains("grey"))
+            return "Gray";
+        else if (tmp.contains("starlight"))
+            return "Starlight";
         else
             return "Unknown";
     }
@@ -112,22 +118,22 @@ public abstract class WebScraper implements Runnable {
      * @param title     is the string to evaluate
      * @return          the storage size of the phone
      */
-    public int getStorageSize(String title) {
+    public int parseStorageSize(String title) {
         String tmp = title.toLowerCase(); //easier to search
 
         if(tmp.contains("16"))
             return 16;
-        else if(tmp.contains("32"))
+        else if(tmp.contains("32") || tmp.contains("(32)"))
             return 32;
-        else if(tmp.contains("64"))
+        else if(tmp.contains("64") || tmp.contains("(64)"))
             return 64;
-        else if(tmp.contains("128"))
+        else if(tmp.contains("128") || tmp.contains("(128)"))
             return 128;
-        else if(tmp.contains("256"))
+        else if(tmp.contains("256") || tmp.contains("(256)"))
             return 256;
-        else if(tmp.contains("512"))
+        else if(tmp.contains("512") || tmp.contains("(512)"))
             return 512;
-        else if(tmp.contains("1TB") || tmp.contains("1000 TB") || tmp.contains("1000TB"))
+        else if(tmp.contains("1TB") || tmp.contains("1000 TB") || tmp.contains("1000TB") || tmp.contains("(1TB)"))
             return 1000;
         else
             return 0;
@@ -138,7 +144,7 @@ public abstract class WebScraper implements Runnable {
      * @param s     is the string to evaluate
      * @return      the brand of the phone
      */
-    public String getBrand(String s) {
+    public String parseBrand(String s) {
         String tmp = s.toLowerCase();
 
         if(tmp.contains("iphone"))
@@ -152,7 +158,7 @@ public abstract class WebScraper implements Runnable {
      * @param s     is the string to evaluate
      * @return      the model of the phone
      */
-    public String getModelApple(String s) {
+    public String parseModelApple(String s) {
         String tmp = s.toLowerCase();
 
         if(tmp.contains("iphone se"))
@@ -194,7 +200,7 @@ public abstract class WebScraper implements Runnable {
      * @param s     is the string to evaluate
      * @return      the model of the phone
      */
-    public String getModelSamsung(String s) {
+    public String parseModelSamsung(String s) {
         String tmp = s.toLowerCase();
 
         if(tmp.contains("galaxy a13"))
@@ -366,7 +372,7 @@ public abstract class WebScraper implements Runnable {
      * @param model is the string to evaluate
      * @return      the model of the phone
      */
-    public float getDisplaySizeSamsung(String model) {
+    public float parseDisplaySizeSamsung(String model) {
         String tmp = model.toLowerCase();
 
         if(tmp.contains("galaxy a13"))
@@ -532,7 +538,7 @@ public abstract class WebScraper implements Runnable {
      * @param s     is the string to evaluate
      * @return      the display size of the phone
      */
-    public float getDisplaySizeApple(String s) {
+    public float parseDisplaySizeApple(String s) {
         String tmp = s.toLowerCase();
 
         if(tmp.contains("iphone se")) {
@@ -583,6 +589,12 @@ public abstract class WebScraper implements Runnable {
             return false;
         else
             return true;
+    }
+
+    //Runs the thread.
+    @Override
+    public void run() {
+
     }
 
     public PhoneDao getDao() {

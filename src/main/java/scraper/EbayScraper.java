@@ -136,11 +136,11 @@ public class EbayScraper extends WebScraper {
                         final String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
                         String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
                         productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
-                        final String productBrand = getBrand(productTitle);
-                        final String productModel = getModelApple(productTitle);
-                        final String productColor = getColor(productTitle);
-                        final int productStorageSize = getStorageSize(productTitle);
-                        final float productDisplaySize = getDisplaySizeApple(productTitle);
+                        final String productBrand = parseBrand(productTitle);
+                        final String productModel = parseModelApple(productTitle);
+                        final String productColor = parseColor(productTitle);
+                        final int productStorageSize = parseStorageSize(productTitle);
+                        final float productDisplaySize = parseDisplaySizeApple(productTitle);
 
                         itemLinks.add(productUrl);
                         Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);
@@ -202,7 +202,7 @@ public class EbayScraper extends WebScraper {
             for (WebElement item : items) {
                 try {
                     String productTitle = item.findElement(By.className(titleClassName)).getText();
-                    final String productModel = getModelSamsung(productTitle);
+                    final String productModel = parseModelSamsung(productTitle);
                     if (productModel == "")
                         continue; // don't save the product. It is unknown.
                     if (validProduct(productTitle)) { //validates that the product is in fact a product
@@ -211,10 +211,10 @@ public class EbayScraper extends WebScraper {
                         final String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
                         String productUrl = item.findElement(By.className(urlClassName)).getAttribute("href");
                         productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
-                        final String productBrand = getBrand(productTitle);
-                        final String productColor = getColor(productTitle);
-                        final int productStorageSize = getStorageSize(productTitle);
-                        final float productDisplaySize = getDisplaySizeSamsung(productTitle);
+                        final String productBrand = parseBrand(productTitle);
+                        final String productColor = parseColor(productTitle);
+                        final int productStorageSize = parseStorageSize(productTitle);
+                        final float productDisplaySize = parseDisplaySizeSamsung(productTitle);
 
                         itemLinks.add(productUrl);
                         Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);

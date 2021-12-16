@@ -28,13 +28,16 @@ public class Main {
         List<WebScraper> scraperManagerList = appConfig.scraperManager().getScraperList();
 
 //        runs all the scrapers as threads
-        scraperManagerList.get(0).run(); //run Ebay scraper
-        scraperManagerList.get(1).run(); //run techinbasket scraper
-        scraperManagerList.get(2).run(); //run Wex scraper
-        scraperManagerList.get(3).run(); //run Amazon scraper
-        scraperManagerList.get(4).run(); //run JD Williams scraper
+        Thread scraperThread1 = new Thread(scraperManagerList.get(0));
+        Thread scraperThread2 = new Thread(scraperManagerList.get(1));
+        Thread scraperThread3 = new Thread(scraperManagerList.get(2));
+        Thread scraperThread4 = new Thread(scraperManagerList.get(3));
+        Thread scraperThread5 = new Thread(scraperManagerList.get(4));
+        scraperThread1.start(); //runs Ebay scraper
+        scraperThread2.start(); //runs Techinthebasket scraper
+        scraperThread3.start(); //runs Wex scraper
+        scraperThread4.start(); //runs Amazon scraper
+        scraperThread5.start(); //runs JD Williams scraper
 
-        //Closes the session factory to avoid connection leakage
-        appConfig.sessionFactory().close();
     }
 }

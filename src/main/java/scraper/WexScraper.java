@@ -4,9 +4,8 @@ import dao.Phone;
 import dao.PhoneDao;
 import dao.Product;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
-import java.util.AbstractSequentialList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,15 +79,15 @@ public class WexScraper extends WebScraper {
                     String productPrice = Product.renderPrice(item.findElement(By.className(priceClassName)).getText());
                     String productImgUrl = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
                     String productUrl = item.findElement(By.cssSelector(urlClassName)).getAttribute("href");
-                    final String productBrand = getBrand(productTitle);
+                    final String productBrand = parseBrand(productTitle);
 
-                    final String productModel = productBrand == "Samsung" ? getModelSamsung(productTitle) : getModelApple(productTitle);
+                    final String productModel = productBrand == "Samsung" ? parseModelSamsung(productTitle) : parseModelApple(productTitle);
 
                     if (productModel == "")
                         continue; // don't save the product. It is unknown.
-                    final String productColor = getColor(productTitle);
-                    final int productStorageSize = getStorageSize(productTitle);
-                    final float productDisplaySize = getDisplaySizeApple(productTitle);
+                    final String productColor = parseColor(productTitle);
+                    final int productStorageSize = parseStorageSize(productTitle);
+                    final float productDisplaySize = parseDisplaySizeApple(productTitle);
 
                     Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgUrl);
                     Product newProduct = new Product(productTitle, productPrice, productUrl, getStoreName());

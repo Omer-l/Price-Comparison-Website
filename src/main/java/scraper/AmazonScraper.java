@@ -87,8 +87,8 @@ public class AmazonScraper extends WebScraper {
 
                     if (validProduct(productTitle)) { //validates that the product is in fact a product
 
-                        final String productBrand = getBrand(productTitle);
-                        final String productModel = productBrand == "Samsung" ? getModelSamsung(productTitle) : getModelApple(productTitle);
+                        final String productBrand = parseBrand(productTitle);
+                        final String productModel = productBrand == "Samsung" ? parseModelSamsung(productTitle) : parseModelApple(productTitle);
                         if (productModel == "")
                             continue; // don't save the product. It is unknown.
 
@@ -96,9 +96,9 @@ public class AmazonScraper extends WebScraper {
                         final String productImgURL = item.findElement(By.className(imgUrlClassName)).getAttribute("src");
                         String productUrl = item.findElement(By.cssSelector(urlClassName)).getAttribute("href");
                         productUrl = productUrl.substring(0, productUrl.indexOf('?')); //might need to exclude products with /p/ path link
-                        final String productColor = getColor(productTitle);
-                        final int productStorageSize = getStorageSize(productTitle);
-                        final float productDisplaySize = productBrand == "Samsung" ? getDisplaySizeSamsung(productModel) : getDisplaySizeApple(productTitle);
+                        final String productColor = parseColor(productTitle);
+                        final int productStorageSize = parseStorageSize(productTitle);
+                        final float productDisplaySize = productBrand == "Samsung" ? parseDisplaySizeSamsung(productModel) : parseDisplaySizeApple(productTitle);
 
                         itemLinks.add(productUrl);
                         Phone newPhone = new Phone(productBrand, productModel, productColor, productStorageSize, productDisplaySize, productImgURL);

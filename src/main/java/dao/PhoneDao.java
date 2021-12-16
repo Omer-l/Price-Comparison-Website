@@ -14,12 +14,12 @@ import java.util.List;
  */
 @Configuration
 public class PhoneDao {
-    private SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
     //To ensure duplicate phones are not added to the database...
 //    HashSet<dao.Phone> set = new HashSet<>();
 
 
-    public SessionFactory getSessionFactory() {
+    private SessionFactory getSessionFactory() {
         return sessionFactory;
     }
 

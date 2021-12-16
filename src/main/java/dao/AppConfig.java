@@ -32,7 +32,7 @@ public class AppConfig {
         scraperList.add(amazonScraper());
         scraperList.add(jdWilliamsScraper());
 
-        //adds it to scraper manager, which will then eb used to run each scraper
+        //adds scrapers to scraper manager, which will then be used to run each scraper
         scraperManager.setScraperList(scraperList);
 
         return scraperManager;
@@ -46,7 +46,8 @@ public class AppConfig {
     public WexScraper wexScraper() {
 
         PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 1;
+        phoneDao.setSessionFactory(sessionFactory());
+        final long scrapeDelay_ms = 100;
         final String titleClassName = "-title";
         final String productInfoContainer = "-details";
         final String priceClassName = "--price";
@@ -65,7 +66,8 @@ public class AppConfig {
     public JdWilliamsScraper jdWilliamsScraper() {
 
         PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 1;
+        phoneDao.setSessionFactory(sessionFactory());
+        final long scrapeDelay_ms = 100;
         final String titleClassName = "js-product-title-anchor";
         final String productInfoContainer = "js-info-anchor";
         final String priceClassName = "product-price__now";
@@ -84,7 +86,8 @@ public class AppConfig {
     public AmazonScraper amazonScraper() {
 
         PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 1;
+        phoneDao.setSessionFactory(sessionFactory());
+        final long scrapeDelay_ms = 100;
         final String titleClassName = "a[class=\"a-link-normal a-text-normal\"]";
         final String productInfoContainer = "-details";
         final String priceClassName = "a-price-whole";
@@ -103,7 +106,8 @@ public class AppConfig {
     public TechInTheBasketScraper techInBasketScraper() {
 
         PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 1;
+        phoneDao.setSessionFactory(sessionFactory());
+        final long scrapeDelay_ms = 100;
         final String titleClassName = "product-item-link";
         final String productInfoContainer = "productInfo";
         final String priceClassName = "price";
@@ -122,7 +126,8 @@ public class AppConfig {
     public EbayScraper ebayScraper() {
 
         PhoneDao phoneDao = phoneDao();
-        final long scrapeDelay_ms = 3000;
+        phoneDao.setSessionFactory(sessionFactory());
+        final long scrapeDelay_ms = 1000;
         final String titleClassName = "s-item__title";
         final String priceClassName = "s-item__price";
         final String imgUrlClassName = "s-item__image-img";
