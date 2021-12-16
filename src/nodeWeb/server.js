@@ -49,7 +49,7 @@ function handleGetRequest(request, response) {
     //Get the pagination properties if they have been set. Will be undefined if not set.
     var numItems = queries['num_items'];
     var offset = queries['offset'];
-
+    console.log("num_items: " + numItems + " .... offset: " + offset); //DEL
     //Split the path of the request into its components
     var pathArray = urlObj.pathname.split("/");
 
@@ -147,11 +147,11 @@ function getTotalProductsCount(response, numItems, offset){
 function getAllPhones(response, totNumItems, numItems, offset) {
     //Select the phones data using JOIN to convert foreign keys into useful data.
     // var sql = "SELECT * FROM phones";
-    var sql = "SELECT model, brand, color, STORAGE, display_size, url_image FROM phones WHERE url_image NOT LIKE '.gif' GROUP BY model;"
+    var sql = "SELECT model, brand, color, STORAGE, display_size, url_image FROM phones WHERE url_image NOT LIKE '.gif' GROUP BY model"
 
     //Limit the number of results returned, if this has been specified in the query string
-    if(numItems !== undefined && offset !== undefined ){
-        sql += "ORDER BY phones.id LIMIT " + numItems + " OFFSET " + offset;
+    if(numItems !== undefined && offset !== undefined ) {
+        sql += " ORDER BY phones.id LIMIT " + numItems + " OFFSET " + offset;
     }
 
     //Execute the query

@@ -28,123 +28,53 @@
 
 <body class="bg-info">
 <div id="app">
-    <div class="bg-info container border border-dark">
-        <h1 class="text-center">Sampple</h1>
-    </div>
-    <div class="container">
-        <img src="searchBackground.png" height="200" width="500">
-    </div>
-    <div id="searchDiv" class="input-group" style="width: 500px">
-        <b-form-input
-                v-model="search"
-                class="form-control rounded"
-                placeholder="Search"
-                type="text"
-        ></b-form-input>
-        <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
-
-    </div>
-    <h3>Apple products below</h3>
-
-    <b-pagination
-            v-model="currentPage"
-            :total-rows="rows"
-            :per-page="perPage"
-            aria-controls="my-table"
-    ></b-pagination>
-    <p class="mt-3">Current Page: {{ currentPage }}</p>
-
-    <b-table
-            id="my-table"
-            :fields="fields"
-            :items="filteredProducts"
-            :search="search"
-            :per-page="perPage"
-            :current-page="currentPage"
-            small
-    >
-        <template #cell(image)="row">
-                <img :src="row.item.url_image" width="100px" height="100px" />
-        </template>
-s
-
-        <template #cell(actions)="row">
-
-            <b-button size="sm" @click="goToComparePage(row.item)" class="mr-1">
-                Compare
-            </b-button>
-            <b-button size="sm" @click="row.toggleDetails">
-                {{ row.detailsShowing ? 'Hide' : 'Show' }} Specifications
-            </b-button>
-        </template>
-
-        <template #row-details="row">
-            <b-card>
-                <ul>
-                    <li>
-                        Brand: {{row.item.brand}}
-                    </li>
-                    <li>
-                        Model: {{row.item.model}}
-                    </li>
-                    <li>
-                        Display size: {{row.item.display_size}}"
-                    </li>
-                    <li>
-                        Storage size: {{row.item.storage}}
-                    </li>
-                    <li>
-                        Color: {{row.item.color}}
-                    </li>
-                </ul>
-            </b-card>
-        </template>
-    </b-table>
-
-</div>
-
-<!-- Use emojis in props -->
-<b-pagination
-        v-model="currentPage"
-        :total-rows="rows"
-        :per-page="perPage"
-        first-text="⏮"
-        prev-text="⏪"
-        next-text="⏩"
-        last-text="⏭"
-        class="mt-4"
-></b-pagination>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Preview</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="phone in phones">
+            <td> {{phone.model}} </td>
+            <td> {{phone.url_image}} </td>
+            <td> <button>Compare</button> </td>
+        </tr>
+        </tbody>
+    </table>
+    <div>Page Number: {{pageNumber}}</div>
 </div>
 <script>
 
     var app = new Vue({
         el: '#app',
         data: {
-            rows: 100,
-            perPage: 10,
-            currentPage: 1,
             phones: [],
             search: '',
-            fields: [
-                {key: 'model', label: 'Model', sortable: true},
-                {key: 'image', label: 'Image'},
-                {key: 'actions', label: 'Actions'}
-            ]
+            pageNumber: '',
         },
         methods: {
             //Get all the phones from the web service using Axios.
             loadProducts: function () {
                 var localApp = this;
-                axios.get('/phones')//Send GET request to phones path
-                    .then(function (response) {//Request successful
-                        //Point phones in data to returned array of phones
-                        localApp.phones = response.data.phones;
-                        console.log(JSON.stringify(response.data.phones));
-                    })
-                    .catch(function (error) {
-                        //Handle error
-                        console.log(error);
-                    });
+                var url = window.location.href;
+                const queries = new URLSearchParams(url);
+                const numItems = 5;
+                const offset = queries.get('offset');
+
+                    axios.get('/phones?num_items=' + numItems + "&offset=" + offset)//Send GET request to phones path
+                        .then(function (response) {//Request successful
+                            localApp.pageNumber =  '' + ((offset / 5) + 1);
+                            //Point phones in data to returned array of phones
+                            localApp.phones = response.data.phones;
+                            console.log(JSON.stringify(response.data.phones));
+                        })
+                        .catch(function (error) {
+                            //Handle error
+                            console.log(error);
+                        });
             },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
@@ -156,13 +86,6 @@ s
 
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);
-        },
-        computed: {
-            filteredProducts() {
-                return this.search
-                    ? this.phones.filter(phone => phone.model.includes(this.search) || phone.color.includes(this.search))
-                    : this.phones
-            }
         }
     })
 
