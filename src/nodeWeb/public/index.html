@@ -64,8 +64,8 @@
                 const queries = new URLSearchParams(url);
                 const numItems = 5;
                 const offset = queries.get('offset');
-
-                    axios.get('/phones?num_items=' + numItems + "&offset=" + offset)//Send GET request to phones path
+                let getRequestLink = (offset === null ? '/phones?num_items=' + numItems : '/phones?num_items=' + numItems + "&offset=" + offset);
+                    axios.get(getRequestLink)//Send GET request to phones path
                         .then(function (response) {//Request successful
                             localApp.pageNumber =  '' + ((offset / 5) + 1);
                             //Point phones in data to returned array of phones
@@ -79,7 +79,7 @@
             },
             loadPageNumbers() {
                 var localApp = this;
-                axios.get('/totalNumberOfPhones') //Send GET request to get all products
+                axios.get('/totalNumberOfPhoneModels') //Send GET request to get all products
                     .then(function (response) {//Request successful
                         localApp.totalPhones = response.data.pageNumbers;
                         console.log("PARSED: " + parseInt(localApp.totalPhones));
