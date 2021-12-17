@@ -44,7 +44,7 @@
         </tr>
         </tbody>
     </table>
-<!--    <div>Page Number: {{pageNumber}}</div>-->
+    <button @click=""><</button><span v-for="pageNumber in pages"> <button @click=""> {{pageNumber}} </button></span> <button @click="">></button>
 </div>
 <script>
 
@@ -53,6 +53,8 @@
         data: {
             phones: [],
             pages: [],
+            numItems: 5,
+            offset: 0,
             search: '',
             totalPhones: ''
         },
@@ -62,12 +64,11 @@
                 var localApp = this;
                 var url = window.location.href;
                 const queries = new URLSearchParams(url);
-                const numItems = 5;
-                const offset = queries.get('offset');
-                let getRequestLink = (offset === null ? '/phones?num_items=' + numItems : '/phones?num_items=' + numItems + "&offset=" + offset);
+                localApp.offset = queries.get('offset');
+                let getRequestLink = (localApp.offset === null ? '/phones?num_items=' + localApp.numItems : '/phones?num_items=' + localApp.numItems + "&offset=" + localApp.offset);
                     axios.get(getRequestLink)//Send GET request to phones path
                         .then(function (response) {//Request successful
-                            localApp.pageNumber =  '' + ((offset / 5) + 1);
+                            localApp.pageNumber =  '' + ((localApp.offset / 5) + 1);
                             //Point phones in data to returned array of phones
                             localApp.phones = response.data.phones;
                             console.log(JSON.stringify(response.data.phones));
@@ -81,12 +82,11 @@
                 var localApp = this;
                 axios.get('/totalNumberOfPhoneModels') //Send GET request to get all products
                     .then(function (response) {//Request successful
-                        localApp.totalPhones = response.data.pageNumbers;
-                        console.log("PARSED: " + parseInt(localApp.totalPhones));
-                        console.log("PAGE NUMBERS: " +  localApp.totalPhones);
-                        //Point phones in data to returned array of phones
-                        localApp.phones = response.data.phones;
-                        console.log(JSON.stringify(localApp.totalPhones));
+                        localApp.totalPhones = parseInt(response.data.pageNumbers);
+                        //create page numbers array
+                        let maxPages = Math.ceil(localApp.totalPhones / localApp.numItems);
+                        for(let pageNumber = 1; pageNumber <= maxPages; pageNumber++)
+                            localApp.pages.push(pageNumber + "");
                     })
                     .catch(function (error) {
                         //Handle error
