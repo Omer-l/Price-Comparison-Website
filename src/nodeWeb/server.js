@@ -50,6 +50,13 @@ function handleGetRequest(request, response) {
     //Get the pagination properties if they have been set. Will be undefined if not set.
     var numItems = queries['num_items'];
     var offset = queries['offset'];
+    var search = queries['search'];
+    search = search.replaceAll("%20", " "); //turns the search into a normal string.
+    search = search.replaceAll("%22", " "); //turns the search into a normal string.
+    search = search.replaceAll("\"", ""); //turns the search into a normal string.
+
+    console.log("NUM_ITEMS: " + numItems); //DEL?
+    console.log("SEARCH: " + search); //DEL?
     //Split the path of the request into its components
     var pathArray = urlObj.pathname.split("/");
 
@@ -58,7 +65,7 @@ function handleGetRequest(request, response) {
 
     //If path ends with 'products' we return all products
     if(pathEnd === 'totalNumberOfPhoneModels'){
-        getOnlyTotalNumberOfPhoneModels(response);//This function calls the getAllProducts function in its callback
+        getOnlyTotalNumberOfPhoneModels(response, search);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -69,7 +76,7 @@ function handleGetRequest(request, response) {
     }
 
     if(pathEnd == 'phones') {
-        getTotalPhonesCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
+        getTotalPhonesCount(response, numItems, offset, search);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -91,8 +98,8 @@ function handleGetRequest(request, response) {
 }
 
 //Gets only the total number of phones.
-function getOnlyTotalNumberOfPhoneModels(response) {
-    var query1 = "SELECT * FROM phones WHERE url_image NOT LIKE '.gif' GROUP BY model;";
+function getOnlyTotalNumberOfPhoneModels(response, search) {
+    var query1 = "SELECT * FROM phones WHERE url_image NOT LIKE '.gif' AND phones.model LIKE '%" + search + "%' GROUP BY model;";
     var query2 = "SELECT FOUND_ROWS() AS count;";
 
     //Execute the query
@@ -159,7 +166,7 @@ function getAllProducts(response, totNumItems, numItems, offset) {
 /** When retrieving all products we start by retrieving the total number of products
     The database callback function will then call the function to get the product data
     with pagination */
-function getTotalProductsCount(response, numItems, offset){
+function getTotalProductsCount(response, numItems, offset, search){
     var sql = "SELECT COUNT(*) FROM products";
 
     //Execute the query and call the anonymous callback function.
@@ -184,15 +191,15 @@ function getTotalProductsCount(response, numItems, offset){
 
 /** Returns all of the phones, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
-function getAllPhones(response, totNumItems, numItems, offset) {
+function getAllPhones(response, totNumItems, numItems, offset, search) {
     //Select the phones data using JOIN to convert foreign keys into useful data.
     // var sql = "SELECT * FROM phones";
-    var sql = "SELECT model, brand, color, STORAGE, display_size, url_image FROM phones WHERE url_image NOT LIKE '.gif' GROUP BY model"
-
+    var sql = "SELECT model, brand, color, storage, display_size, url_image FROM phones WHERE phones.model LIKE '%" + search + "%' GROUP BY model"
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ) {
         sql += " ORDER BY phones.id LIMIT " + numItems + " OFFSET " + offset;
     }
+    console.log("GETALL: " + sql);
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
@@ -208,7 +215,9 @@ function getAllPhones(response, totNumItems, numItems, offset) {
         //Create JavaScript object that combines total number of items with data
         var returnObj = {totNumItems: totNumItems};
         returnObj.phones = result; //Array of data from database
+        console.log(returnObj.phones);
         //Return results in JSON format
+        console.log("DONE:!");
         response.json(returnObj);
     });
 }
@@ -216,26 +225,38 @@ function getAllPhones(response, totNumItems, numItems, offset) {
 /** When retrieving all phones we start by retrieving the total number of phones
  The database callback function will then call the function to get the phones data
  with pagination */
-function getTotalPhonesCount(response, numItems, offset){
-    var sql = "SELECT COUNT(*) FROM phones";
+function getTotalPhonesCount(response, numItems, offset, search){
+    var query1 = "SELECT * FROM phones WHERE url_image NOT LIKE '.gif' AND phones.model LIKE '%" + search + "%' GROUP BY model;";
+    var query2 = "SELECT FOUND_ROWS() AS count;";
 
-    //Execute the query and call the anonymous callback function.
-    connectionPool.query(sql, function (err, result) {
+    //Execute the query
+    connectionPool.query(query1, function (err, result) {
 
         //Check for errors
         if (err){
-            console.error("Error executing query: " + JSON.stringify(err)); // del?
+            console.log(err);
             //Not an ideal error code, but we don't know what has gone wrong.
             response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
             response.json({'error': true, 'message': + err});
             return;
         }
+    });
+    connectionPool.query(query2, function (err, totalCount) {
+
+        //Check for errors
+        if (err) {
+            console.log(err);
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': +err});
+            return;
+        }
 
         //Get the total number of items from the result
-        var totNumItems = result[0]['COUNT(*)'];
-
+        var totNumItems = totalCount[0].count;
+        console.log("PHONES TOT: " + totNumItems);
         //Call the function that retrieves all phones
-        getAllPhones(response, totNumItems, numItems, offset);
+        getAllPhones(response, totNumItems, numItems, offset, search);
     });
 }
 

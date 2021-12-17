@@ -24,10 +24,19 @@
 
     <!-- Load the following for BootstrapVueIcons support -->
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
+    <script src="styles.css"/>
 </head>
 
 <body class="bg-info">
 <div id="app">
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <a class="navbar-brand">Sampple - Compare Apple And Samung Phones</a>
+        <span>
+            <input class="form-control-sm mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </span>
+    </nav>
     <table class="table">
         <thead>
         <tr>
@@ -38,13 +47,21 @@
         </thead>
         <tbody>
         <tr v-for="phone in phones">
-            <td> {{phone.model}} </td>
-            <td> {{phone.url_image}} </td>
-            <td> <button>Compare</button> </td>
+            <td> {{phone.model}}</td>
+            <td><img :src="phone.url_image" width="100px" height="100px"/></td>
+            <td>
+                <button>Compare</button>
+            </td>
         </tr>
         </tbody>
     </table>
-    <button @click=""><</button><span v-for="pageNumber in pages"> <button @click=""> {{pageNumber}} </button></span> <button @click="">></button>
+    <button @click=""><</button>
+    <span id="buttonContainer" v-for="pageNumber in pages">
+        <button v-if="currentPageNumber(offset, numItems, pageNumber)" @click="">  <b>{{pageNumber}}</b> </button>
+        <button v-else @click=""> {{pageNumber}} </button>
+    </span>
+    <button @click="">></button>
+
 </div>
 <script>
 
@@ -53,7 +70,7 @@
         data: {
             phones: [],
             pages: [],
-            numItems: 5,
+            numItems: 0,
             offset: 0,
             search: '',
             totalPhones: ''
@@ -64,34 +81,41 @@
                 var localApp = this;
                 var url = window.location.href;
                 const queries = new URLSearchParams(url);
-                localApp.offset = queries.get('offset');
-                let getRequestLink = (localApp.offset === null ? '/phones?num_items=' + localApp.numItems : '/phones?num_items=' + localApp.numItems + "&offset=" + localApp.offset);
-                    axios.get(getRequestLink)//Send GET request to phones path
-                        .then(function (response) {//Request successful
-                            localApp.pageNumber =  '' + ((localApp.offset / 5) + 1);
-                            //Point phones in data to returned array of phones
-                            localApp.phones = response.data.phones;
-                            console.log(JSON.stringify(response.data.phones));
-                        })
-                        .catch(function (error) {
-                            //Handle error
-                            console.log(error);
-                        });
-            },
-            loadPageNumbers() {
-                var localApp = this;
-                axios.get('/totalNumberOfPhoneModels') //Send GET request to get all products
+                let tmpNumItems = queries.get('num_items');
+                let tmpOffset = queries.get('offset');
+                let tmpSearch = queries.get('search');
+
+                localApp.numItems = tmpNumItems === null ? 5 : parseInt(tmpNumItems);
+                localApp.offset = tmpOffset === null ? 0 : parseInt(tmpOffset);
+                localApp.search = tmpSearch === null ? '' : tmpSearch;
+                //link for GET req to back end.
+                let getRequestLink = '/phones?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.search;
+                console.log(getRequestLink);
+                axios.get(getRequestLink)//Send GET request to phones path
                     .then(function (response) {//Request successful
-                        localApp.totalPhones = parseInt(response.data.pageNumbers);
+                        console.log("HERE NOW: " + response.data.phones);
+                        localApp.pageNumber = '' + ((localApp.offset / 5) + 1);
+                        //Point phones in data to returned array of phones
+                        localApp.phones = response.data.phones;
+                        console.log(JSON.stringify(response.data.phones));
+
                         //create page numbers array
+                        localApp.totalPhones = parseInt(response.data.totNumItems);
+                        localApp.pages = [];
                         let maxPages = Math.ceil(localApp.totalPhones / localApp.numItems);
-                        for(let pageNumber = 1; pageNumber <= maxPages; pageNumber++)
+                        for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++)
                             localApp.pages.push(pageNumber + "");
                     })
                     .catch(function (error) {
                         //Handle error
                         console.log(error);
                     });
+            },
+            currentPageNumber(offset, numberOfItems, pageNumber) {
+                let actualPageNumber = Math.floor((offset / numberOfItems) + 1);
+                console.log("CALC: " + actualPageNumber + "EVALUATING PAGE NUMBER: " + pageNumber);
+                console.log(actualPageNumber == pageNumber);
+                return actualPageNumber == pageNumber;
             },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
@@ -100,8 +124,6 @@
         created: function () {//Vue lifecycle hook, called when data is loaded.
             //Load products from web service
             this.loadProducts();
-            this.loadPageNumbers();
-
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);
         }
