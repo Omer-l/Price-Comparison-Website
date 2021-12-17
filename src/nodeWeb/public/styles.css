@@ -1,3 +1,5 @@
-#buttonContainer {
-    position: center;
+.buttonContainer {
+    text-align: center;
+    margin: auto;
+    width: 50%;
 }

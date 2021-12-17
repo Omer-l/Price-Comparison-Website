@@ -52,8 +52,6 @@ function handleGetRequest(request, response) {
     var offset = queries['offset'];
     var search = queries['search'];
     search = search.replaceAll("%20", " "); //turns the search into a normal string.
-    search = search.replaceAll("%22", " "); //turns the search into a normal string.
-    search = search.replaceAll("\"", ""); //turns the search into a normal string.
 
     console.log("NUM_ITEMS: " + numItems); //DEL?
     console.log("SEARCH: " + search); //DEL?

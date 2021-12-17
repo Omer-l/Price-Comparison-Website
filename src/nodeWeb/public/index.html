@@ -4,6 +4,9 @@
 <head>
     <title>Sampple</title>
     <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <!--Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+<!--    jQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Vue development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -25,7 +28,6 @@
     <!-- Load the following for BootstrapVueIcons support -->
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 
-    <script src="styles.css"/>
 </head>
 
 <body class="bg-info">
@@ -55,12 +57,14 @@
         </tr>
         </tbody>
     </table>
-    <button @click=""><</button>
-    <span id="buttonContainer" v-for="pageNumber in pages">
-        <button v-if="currentPageNumber(offset, numItems, pageNumber)" @click="">  <b>{{pageNumber}}</b> </button>
-        <button v-else @click=""> {{pageNumber}} </button>
+    <div class="buttonContainer">
+        <button @click="goToPage(currentPage-1)"><</button>
+        <span v-for="pageNumber in pages">
+        <button v-if="currentPage == pageNumber" @click="goToPage(pageNumber)">  <b>{{pageNumber}}</b> </button>
+        <button v-else @click="goToPage(pageNumber)"> {{pageNumber}} </button>
     </span>
-    <button @click="">></button>
+        <button @click="goToPage(currentPage+1)">></button>
+    </div>
 
 </div>
 <script>
@@ -70,6 +74,7 @@
         data: {
             phones: [],
             pages: [],
+            currentPage: 0,
             numItems: 0,
             offset: 0,
             search: '',
@@ -88,13 +93,12 @@
                 localApp.numItems = tmpNumItems === null ? 5 : parseInt(tmpNumItems);
                 localApp.offset = tmpOffset === null ? 0 : parseInt(tmpOffset);
                 localApp.search = tmpSearch === null ? '' : tmpSearch;
+                localApp.search = localApp.search.replaceAll("\"", ""); //turns the search into a normal string.
+                localApp.search = localApp.search.replaceAll("%22", " "); //turns the search into a normal string.
                 //link for GET req to back end.
                 let getRequestLink = '/phones?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.search;
-                console.log(getRequestLink);
                 axios.get(getRequestLink)//Send GET request to phones path
                     .then(function (response) {//Request successful
-                        console.log("HERE NOW: " + response.data.phones);
-                        localApp.pageNumber = '' + ((localApp.offset / 5) + 1);
                         //Point phones in data to returned array of phones
                         localApp.phones = response.data.phones;
                         console.log(JSON.stringify(response.data.phones));
@@ -103,19 +107,25 @@
                         localApp.totalPhones = parseInt(response.data.totNumItems);
                         localApp.pages = [];
                         let maxPages = Math.ceil(localApp.totalPhones / localApp.numItems);
-                        for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++)
+                        for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++) {
                             localApp.pages.push(pageNumber + "");
+                            //gets current page number
+                            if (Math.floor((localApp.offset / localApp.numItems) + 1) == pageNumber)
+                                localApp.currentPage = pageNumber;
+                        }
                     })
                     .catch(function (error) {
                         //Handle error
                         console.log(error);
                     });
             },
-            currentPageNumber(offset, numberOfItems, pageNumber) {
-                let actualPageNumber = Math.floor((offset / numberOfItems) + 1);
-                console.log("CALC: " + actualPageNumber + "EVALUATING PAGE NUMBER: " + pageNumber);
-                console.log(actualPageNumber == pageNumber);
-                return actualPageNumber == pageNumber;
+            goToPage(pageNumber) {
+                var localApp = this;
+                if(pageNumber >= 1 && pageNumber <= localApp.pages.length) {
+                    let difference = pageNumber - localApp.currentPage;
+                    let newOffset = localApp.offset + (localApp.numItems * difference);
+                    location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.search + "\"";
+                }
             },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
@@ -130,6 +140,7 @@
     })
 
 </script>
+<!--Client side file-->
 <script src="./client.js"/>
 </body>
 
