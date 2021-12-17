@@ -4,6 +4,9 @@
 <head>
     <title>Sampple</title>
     <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <!--Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <!--    jQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Vue development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -24,156 +27,132 @@
 
     <!-- Load the following for BootstrapVueIcons support -->
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
 </head>
 
 <body class="bg-info">
 <div id="app">
-    <div class="bg-info container border border-dark">
-        <h1 class="text-center">Sampple</h1>
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <h1>Sampple</h1> <h3>Compare Apple And Samung Phones</h3>
+        <form @submit.prevent="searchPhoneModel">
+            <input v-model="search" class="form-control-sm mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </nav>
+    <h5> Showing {{totalPhones}} Phone Models: </h5>
+    Items Per Page: <button @click="setNumItems(2)">2</button>
+    <button @click="setNumItems(4)">4</button>
+    <button @click="setNumItems(8)">8</button>
+    <button @click="setNumItems(16)">16</button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Storage</th>
+            <th scope="col">Color</th>
+            <th scope="col">Store</th>
+            <th scope="col">Price</th>
+            <th scope="col">Go To</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in products">
+            <td> {{phone.model}}</td>
+            <td><img :src="phone.url_image" width="100px" height="100px" alt="No Image"/></td>
+            <td> <button @click="goToComparePage(phone)">Compare</button> </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="buttonContainer">
+        <button @click="goToPage(currentPage-1)"><</button>
+        <span v-for="pageNumber in pages">
+        <button v-if="currentPage == pageNumber" @click="goToPage(pageNumber)">  <b>{{pageNumber}}</b> </button>
+        <button v-else @click="goToPage(pageNumber)"> {{pageNumber}} </button>
+    </span>
+        <button @click="goToPage(currentPage+1)">></button>
     </div>
-    <div class="container">
-        <img src="searchBackground.png" height="200" width="500">
-    </div>
-    <div id="searchDiv" class="input-group" style="width: 500px">
-        <b-form-input
-                v-model="search"
-                class="form-control rounded"
-                placeholder="Search"
-                type="text"
-        ></b-form-input>
-        <a id="searchButton" type="button" class="btn btn-outline-primary">search</a>
 
-    </div>
-    <h3>Apple products below</h3>
-
-    <b-pagination
-            v-model="currentPage"
-            :total-rows="rows"
-            :per-page="perPage"
-            aria-controls="my-table"
-    ></b-pagination>
-    <p class="mt-3">Current Page: {{ currentPage }}</p>
-
-    <b-table
-            id="my-table"
-            :fields="fields"
-            :items="filteredProducts"
-            :search="search"
-            :per-page="perPage"
-            :current-page="currentPage"
-            small
-    >
-        <template #cell(storage)="row">
-            <span  v-if="row.item.storage > '0'"> {{row.item.storage}} GB </span>
-            <span  v-else> Unknown </span>
-        </template>
-
-        <template #cell(price)="row">
-            E{{row.item.price}}
-        </template>
-
-        <template #cell(actions)="row">
-            <b-button size="sm" @click="goToProductUrl(row.item)" class="mr-1">
-                Go To Site
-            </b-button>
-            <b-button size="sm" @click="row.toggleDetails">
-                {{ row.detailsShowing ? 'Hide' : 'Show' }} Specifications
-            </b-button>
-        </template>
-
-        <template #row-details="row">
-            <b-card>
-                <ul>
-                    <li>
-                        Brand: {{row.item.brand}}
-                    </li>
-                    <li>
-                        Model: {{row.item.model}}
-                    </li>
-                    <li>
-                        Display size: {{row.item.display_size}}"
-                    </li>
-                    <li>
-                        Storage size: {{row.item.storage}}
-                    </li>
-                    <li>
-                        Color: {{row.item.color}}
-                    </li>
-                </ul>
-            </b-card>
-        </template>
-    </b-table>
-
-</div>
-
-<!-- Use emojis in props -->
-<b-pagination
-        v-model="currentPage"
-        :total-rows="rows"
-        :per-page="perPage"
-        first-text="⏮"
-        prev-text="⏪"
-        next-text="⏩"
-        last-text="⏭"
-        class="mt-4"
-></b-pagination>
 </div>
 <script>
-    var app = new Vue ({
+
+    var app = new Vue({
         el: '#app',
         data: {
-            rows: 100,
-            perPage: 10,
-            currentPage: 1,
             products: [],
+            pages: [],
+            currentPage: 0,
+            numItems: 0,
+            offset: 0,
             search: '',
-            fields: [
-                {key: 'model', label: 'Model', sortable: true},
-                {key: 'storage', label: 'Storage', sortable: true},
-                {key: 'color', label: 'Color', sortable: true},
-                {key: 'store', label: 'Store', sortable: true},
-                {key: 'price', label: 'Price', sortable: true},
-                {key: 'actions', label: 'Actions'}
-            ]
+            totalPhones: ''
         },
         methods: {
-            //Get all the products from the web service using Axios.
+            //Get all the phones from the web service using Axios.
             loadProducts: function () {
-                const params = new URLSearchParams(window.location.search);
-                const phoneModel = params.get("model");
                 var localApp = this;
-                axios.get('/products/' + phoneModel)//Send GET request to products path
+                var url = window.location.href;
+                const queries = new URLSearchParams(url);
+                let tmpNumItems = queries.get('num_items');
+                let tmpOffset = queries.get('offset');
+                let tmpSearch = queries.get('search');
+
+                localApp.numItems = tmpNumItems === null ? 5 : parseInt(tmpNumItems);
+                localApp.offset = tmpOffset === null ? 0 : parseInt(tmpOffset);
+                localApp.search = tmpSearch === null ? '' : tmpSearch;
+                localApp.search = localApp.search.replaceAll("\"", ""); //turns the search into a normal string.
+                localApp.search = localApp.search.replaceAll("%22", " "); //turns the search into a normal string.
+                //link for GET req to back end.
+                let getRequestLink = '/products?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.search;
+                axios.get(getRequestLink)//Send GET request to phones path
                     .then(function (response) {//Request successful
-                        //Point products in data to returned array of products
+                        //Point phones in data to returned array of phones
                         localApp.products = response.data.products;
-                        console.log(response.data.products);
+                        console.log(JSON.stringify(response.data.products));
+
+                        //create page numbers array
+                        localApp.totalPhones = parseInt(response.data.totNumItems);
+                        localApp.pages = [];
+                        let maxPages = Math.ceil(localApp.totalPhones / localApp.numItems);
+                        for (let pageNumber = 1; pageNumber <= maxPages; pageNumber++) {
+                            localApp.pages.push(pageNumber + "");
+                            //gets current page number
+                            if (Math.floor((localApp.offset / localApp.numItems) + 1) == pageNumber)
+                                localApp.currentPage = pageNumber;
+                        }
                     })
                     .catch(function (error) {
                         //Handle error
                         console.log(error);
                     });
             },
-            goToProductUrl(item) {
-                window.open(item.url, '_blank').focus();
+            goToPage(pageNumber) {
+                var localApp = this;
+                if(pageNumber >= 1 && pageNumber <= localApp.pages.length) {
+                    let difference = pageNumber - localApp.currentPage;
+                    let newOffset = localApp.offset + (localApp.numItems * difference);
+                    location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.search + "\"";
+                }
+            },
+            searchPhoneModel() {
+                location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + this.numItems + "&search=\"" + this.search + "\"";
+            },
+            setNumItems(numItems) {
+                location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + numItems + "&search=\"" + this.search + "\"";
+            },
+            goToComparePage(item) {
+                window.location.href = "http://localhost:8080/product.html?&model=" + item.model;
             }
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
             //Load products from web service
             this.loadProducts();
-
             //Refresh products every 5 seconds
             setInterval(this.loadProducts, 5000);
-        },
-        computed: {
-            filteredProducts() {
-                return this.search
-                    ? this.products.filter(product => product.name.includes(this.search) || product.model.includes(this.search) || product.color.includes(this.search))
-                    : this.products
-            }
         }
     })
 
 </script>
+<!--Client side file-->
 <script src="./client.js"/>
 </body>
 

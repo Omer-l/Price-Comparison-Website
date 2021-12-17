@@ -53,6 +53,7 @@ function handleGetRequest(request, response) {
     var search = queries['search'];
     search = search.replaceAll("%20", " "); //turns the search into a normal string.
 
+    console.log("OFFSET: " + offset); //DEL?
     console.log("NUM_ITEMS: " + numItems); //DEL?
     console.log("SEARCH: " + search); //DEL?
     //Split the path of the request into its components
@@ -132,10 +133,9 @@ function getOnlyTotalNumberOfPhoneModels(response, search) {
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
-function getAllProducts(response, totNumItems, numItems, offset) {
+function getAllProducts(response, totNumItems, numItems, offset, search) {
     //Select the products data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) ";
-
+    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model LIKE '%" + search + "%' ";
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
         sql += "ORDER BY products.id LIMIT " + numItems + " OFFSET " + offset;
@@ -183,7 +183,7 @@ function getTotalProductsCount(response, numItems, offset, search){
         var totNumItems = result[0]['COUNT(*)'];
 
         //Call the function that retrieves all products
-        getAllProducts(response, totNumItems, numItems, offset);
+        getAllProducts(response, totNumItems, numItems, offset, search);
     });
 }
 
