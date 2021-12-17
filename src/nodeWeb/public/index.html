@@ -34,11 +34,12 @@
 <div id="app">
     <nav class="navbar navbar-light bg-light justify-content-between">
         <a class="navbar-brand">Sampple - Compare Apple And Samung Phones</a>
-        <span>
-            <input class="form-control-sm mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <form @submit.prevent="searchPhoneModel">
+            <input v-model="search" class="form-control-sm mr-sm-2" type="text" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </span>
+        </form>
     </nav>
+    Showing {{totalPhones}} Phone Models:
     <table class="table">
         <thead>
         <tr>
@@ -50,7 +51,7 @@
         <tbody>
         <tr v-for="phone in phones">
             <td> {{phone.model}}</td>
-            <td><img :src="phone.url_image" width="100px" height="100px"/></td>
+            <td><img :src="phone.url_image" width="100px" height="100px" alt="No Image"/></td>
             <td>
                 <button>Compare</button>
             </td>
@@ -126,6 +127,9 @@
                     let newOffset = localApp.offset + (localApp.numItems * difference);
                     location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.search + "\"";
                 }
+            },
+            searchPhoneModel() {
+                location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + this.numItems + "&search=\"" + this.search + "\"";
             },
             goToComparePage(item) {
                 window.location.href += "product.html?model=" + item.model;
