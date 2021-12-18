@@ -33,7 +33,7 @@
 <body class="bg-info">
 <div id="app">
     <nav class="navbar navbar-light bg-light justify-content-between">
-        <h1>Sampple</h1> <h3>Compare Apple And Samung Phones</h3>
+        <h1><a href="index.html"> Sampple </a> </h1> <h3>Compare Apple And Samung Phones</h3>
         <form @submit.prevent="searchPhoneModel">
             <input v-model="search" class="form-control-sm mr-sm-2" type="text" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
@@ -58,10 +58,10 @@
         <tbody>
         <tr v-for="product in products">
             <td> {{product.model}}</td>
-            <td> {{product.storage}}</td>
+            <td> {{product.storage}} GB</td>
             <td> {{product.color}}</td>
             <td> {{product.store}}</td>
-            <td> {{product.price}}</td>
+            <td> £{{product.price}}</td>
             <td> <button @click="goToSite(product)">Site</button> </td>
         </tr>
         </tbody>
@@ -135,7 +135,7 @@
                 if(pageNumber >= 1 && pageNumber <= localApp.pages.length) {
                     let difference = pageNumber - localApp.currentPage;
                     let newOffset = localApp.offset + (localApp.numItems * difference);
-                    location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.phoneModel + "\"";
+                    location.href = "http://localhost:8080/product.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&model=\"" + localApp.phoneModel + "\"";
                 }
             },
             searchPhoneModel() {
