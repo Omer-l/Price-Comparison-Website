@@ -30,13 +30,13 @@
 
 </head>
 
-<body class="bg-info">
+<body class="bg-dark text-light">
 <div id="app">
-    <nav class="navbar navbar-light bg-light justify-content-between">
+    <nav class="navbar justify-content-between">
         <h1><a href="index.html"> Sampple </a> </h1> <h3>Compare Apple And Samung Phones</h3>
-        <form @submit.prevent="searchPhoneModel">
-            <input v-model="search" class="form-control-sm mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <form class="bg-dark" @submit.prevent="searchPhoneModel">
+            <input v-model="search" class="form-control-lg" type="text" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
         </form>
     </nav>
     <h5> Showing {{totalPhones}} Phone Models: </h5>
@@ -44,7 +44,7 @@
     <button @click="setNumItems(4)">4</button>
     <button @click="setNumItems(8)">8</button>
     <button @click="setNumItems(16)">16</button>
-    <table class="table">
+    <table class="table text-light">
         <thead>
         <tr>
             <th scope="col">Model</th>
@@ -57,18 +57,18 @@
             <td> {{phone.model}}</td>
             <td><img :src="phone.url_image" width="100px" height="100px" alt="No Image"/></td>
             <td>
-                <button @click="goToComparePage(phone)">Compare</button>
+                <button class="btn btn-outline-light my-2 my-sm-0" @click="goToComparePage(phone)">Compare</button>
             </td>
         </tr>
         </tbody>
     </table>
     <div class="buttonContainer">
-        <button @click="goToPage(currentPage-1)"><</button>
+        <button @click="goToPage(currentPage-1)" class="btn btn-outline-light my-2 my-sm-0"><</button>
         <span v-for="pageNumber in pages">
-        <button v-if="currentPage == pageNumber" @click="goToPage(pageNumber)">  <b>{{pageNumber}}</b> </button>
-        <button v-else @click="goToPage(pageNumber)"> {{pageNumber}} </button>
+        <button v-if="currentPage == pageNumber" @click="goToPage(pageNumber)" class="btn btn-outline-light my-2 my-sm-0">  <b>{{pageNumber}}</b> </button>
+        <button v-else @click="goToPage(pageNumber)" class="btn btn-outline-light my-2 my-sm-0"> {{pageNumber}} </button>
     </span>
-        <button @click="goToPage(currentPage+1)">></button>
+        <button @click="goToPage(currentPage+1)" class="btn btn-outline-light my-2 my-sm-0">></button>
     </div>
 
 </div>

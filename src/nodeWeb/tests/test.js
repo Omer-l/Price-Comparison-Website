@@ -18,7 +18,7 @@ describe('Server', function() {
 
    //Mocha test for getTotalProductsCount method in database
    describe('#getTotalProductsCount', function() {
-      it('should return the total number of phones (or products) in the database', function(done) {
+      it('should return the total number of products in the database given a limit', function(done) {
          //Data and dummy objects for test
          let response = {};
          response.status = () => {}; //Empty function in case of error
@@ -28,12 +28,33 @@ describe('Server', function() {
 
          ///use database code to create a database object testing
          server.getTotalProductsCount = function (response, totNumItems, numItems, offset) {
-            assert.equal(totNumItems, 6);
+            assert.equal(totNumItems, 4);
             done();
          }
 
          //Call function being tested
          server.getTotalProductsCount(response, numItems, offset);
+      });
+   });
+
+   //Mocha test for getTotalPhonesCount method in database
+   describe('#getTotalPhonesCount', function() {
+      it('should return the total number of phone models in the database given a limit', function(done) {
+         //Data and dummy objects for test
+         let response = {};
+         response.status = () => {}; //Empty function in case of error
+         response.json = () => {}; //Empty function in case of error
+         let numItems = 8;
+         let offset = 0;
+
+         ///use database code to create a database object testing
+         server.getTotalPhonesCount = function (response, totNumItems, numItems, offset) {
+            assert.equal(totNumItems, 8);
+            done();
+         }
+
+         //Call function being tested
+         server.getTotalPhonesCount(response, numItems, offset);
       });
    });
 

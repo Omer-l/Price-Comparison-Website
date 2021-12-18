@@ -33,7 +33,6 @@ var connectionPool = mysql.createConnection({
 app.get('/products/*', handleGetRequest);//Subfolders
 app.get('/products', handleGetRequest);
 app.get('/phones', handleGetRequest);
-app.get('/totalNumberOfPhoneModels', handleGetRequest);
 
 
 
@@ -61,14 +60,8 @@ function handleGetRequest(request, response) {
     var pathEnd = pathArray[pathArray.length - 1];
 
     //If path ends with 'products' we return all products
-    if(pathEnd === 'totalNumberOfPhoneModels'){
-        getOnlyTotalNumberOfPhoneModels(response, search);//This function calls the getAllProducts function in its callback
-        return;
-    }
-
-    //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
-        getTotalProductsCount(response, numItems, offset, search, ascending);//This function calls the getAllProducts function in its callback
+        let totNumItems = getTotalProductsCount(response, numItems, offset, search, ascending);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -92,41 +85,6 @@ function handleGetRequest(request, response) {
     //The path is not recognized. Return an error message
     response.status(HTTP_STATUS.NOT_FOUND);
     response.send("{error: 'Path not recognized', url: " + request.url + "}");
-}
-
-//Gets only the total number of phones.
-function getOnlyTotalNumberOfPhoneModels(response, search) {
-    var query1 = "SELECT * FROM phones WHERE url_image NOT LIKE '.gif' AND phones.model LIKE '%" + search + "%' GROUP BY model;";
-    var query2 = "SELECT FOUND_ROWS() AS count;";
-
-    //Execute the query
-    connectionPool.query(query1, function (err, result) {
-
-        //Check for errors
-        if (err){
-            console.log(err);
-            //Not an ideal error code, but we don't know what has gone wrong.
-            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
-            response.json({'error': true, 'message': + err});
-            return;
-        }
-    });
-    connectionPool.query(query2, function (err, totalCount) {
-
-        //Check for errors
-        if (err) {
-            console.log(err);
-            //Not an ideal error code, but we don't know what has gone wrong.
-            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
-            response.json({'error': true, 'message': +err});
-            return;
-        }
-
-        //Create JavaScript object that combines total number of items with data
-        var returnObj = {pageNumbers: totalCount[0].count};
-        //Return results in JSON format
-        response.json(returnObj);
-    });
 }
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
