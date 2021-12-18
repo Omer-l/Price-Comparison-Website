@@ -51,11 +51,9 @@ function handleGetRequest(request, response) {
     var numItems = queries['num_items'];
     var offset = queries['offset'];
     var search = queries['search'];
+    var ascending = queries['ascending'];
     search = search.replaceAll("%20", " "); //turns the search into a normal string.
 
-    console.log("OFFSET: " + offset); //DEL?
-    console.log("NUM_ITEMS: " + numItems); //DEL?
-    console.log("SEARCH: " + search); //DEL?
     //Split the path of the request into its components
     var pathArray = urlObj.pathname.split("/");
 
@@ -70,7 +68,7 @@ function handleGetRequest(request, response) {
 
     //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
-        getTotalProductsCount(response, numItems, offset, search);//This function calls the getAllProducts function in its callback
+        getTotalProductsCount(response, numItems, offset, search, ascending);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -133,12 +131,12 @@ function getOnlyTotalNumberOfPhoneModels(response, search) {
 
 /** Returns all of the products, possibly with a limit on the total number of items returned and the offset (to
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
-function getAllProducts(response, totNumItems, numItems, offset, search) {
+function getAllProducts(response, totNumItems, numItems, offset, search, ascending) {
     //Select the products data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model = '" + (search == undefined ? "" : search) + "' ";
+    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model = '" + (search == undefined ? "" : search) + "'  ORDER BY products.price" + (ascending == 'true'? " ASC" : " DESC");
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
-        sql += "ORDER BY products.id LIMIT " + numItems + " OFFSET " + offset;
+        sql += " LIMIT " + numItems + " OFFSET " + offset;
     }
     //Execute the query
     connectionPool.query(sql, function (err, result) {
@@ -163,7 +161,7 @@ function getAllProducts(response, totNumItems, numItems, offset, search) {
 /** When retrieving all products we start by retrieving the total number of products
     The database callback function will then call the function to get the product data
     with pagination */
-function getTotalProductsCount(response, numItems, offset, search){
+function getTotalProductsCount(response, numItems, offset, search, ascending){
     var query1 = "SELECT products.name FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model = '" + (search == undefined ? "" : search) + "' ";
     var query2 = "SELECT FOUND_ROWS() AS count;";
 
@@ -192,9 +190,8 @@ function getTotalProductsCount(response, numItems, offset, search){
 
         //Get the total number of items from the result
         var totNumItems = totalCount[0].count;
-        console.log("PHONES TOT: " + totNumItems);
         //Call the function that retrieves all products
-        getAllProducts(response, totNumItems, numItems, offset, search);
+        getAllProducts(response, totNumItems, numItems, offset, search, ascending);
     });
 }
 

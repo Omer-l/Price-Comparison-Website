@@ -51,13 +51,13 @@
             <th scope="col">Storage</th>
             <th scope="col">Color</th>
             <th scope="col">Store</th>
-            <th scope="col">Price</th>
+            <th scope="col">Price <button @click="sortByPrice()" v-if="ascending">\/</button> <button @click="sortByPrice()" v-else>/\</button></th>
             <th scope="col">Go To</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="product in products">
-            <td> {{product.model}}</td>
+            <td> {{product.name}}</td>
             <td> {{product.storage}} GB</td>
             <td> {{product.color}}</td>
             <td> {{product.store}}</td>
@@ -88,7 +88,8 @@
             offset: 0,
             phoneModel: '',
             search: '',
-            totalPhones: ''
+            totalPhones: '',
+            ascending: true
         },
         methods: {
             //Get all the phones from the web service using Axios.
@@ -106,13 +107,12 @@
                 localApp.phoneModel = localApp.phoneModel.replaceAll("\"", ""); //turns the search into a normal string.
                 localApp.phoneModel = localApp.phoneModel.replaceAll("%22", " "); //turns the search into a normal string.
                 //link for GET req to back end.
-                let getRequestLink = '/products?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.phoneModel + "";
+                let getRequestLink = '/products?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.phoneModel + "&ascending=" + (localApp.ascending ? "true" : "false");
                 console.log(getRequestLink);
                 axios.get(getRequestLink)//Send GET request to phones path
                     .then(function (response) {//Request successful
                         //Point phones in data to returned array of phones
                         localApp.products = response.data.products;
-                        console.log(JSON.stringify(response.data.products));
 
                         //create page numbers array
                         localApp.totalPhones = parseInt(response.data.totNumItems);
@@ -142,10 +142,15 @@
                 location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + this.numItems + "&search=\"" + this.search + "\"";
             },
             setNumItems(numItems) {
-                location.href = "http://localhost:8080/product.html?&offset=0&num_items=" + numItems + "&search=\"" + this.phoneModel + "\"";
+                location.href = "http://localhost:8080/product.html?&offset=0&num_items=" + numItems + "&model=\"" + this.phoneModel + "\"";
             },
             goToSite(item) {
                 window.open(item.url, '_blank').focus();
+            },
+            sortByPrice() {
+                this.ascending = !this.ascending;
+                //Load products from web service again.
+                this.loadProducts();
             }
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
