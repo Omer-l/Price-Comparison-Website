@@ -33,17 +33,17 @@
 <body class="bg-dark text-light">
 <div id="app">
     <nav class="navbar justify-content-between">
-        <h1><a href="index.html"> Sampple </a> </h1> <h3>Compare Apple And Samung Phones</h3>
+        <h1><a href="index.html"> Sampple </a> </h1> <h3>Compare Apple And Samsung Phones</h3>
         <form @submit.prevent="searchPhoneModel">
             <input v-model="search" class="form-control-lg" type="text" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
         </form>
     </nav>
     <h5> Showing {{totalPhones}} Products: </h5>
-    Items Per Page: <button @click="setNumItems(2)">2</button>
-    <button @click="setNumItems(4)">4</button>
-    <button @click="setNumItems(8)">8</button>
-    <button @click="setNumItems(16)">16</button>
+    Items Per Page: <button @click="setNumItems(2)" class="btn btn-outline-light my-2 my-sm-0">2</button>
+    <button @click="setNumItems(4)" class="btn btn-outline-light my-2 my-sm-0">4</button>
+    <button @click="setNumItems(8)" class="btn btn-outline-light my-2 my-sm-0">8</button>
+    <button @click="setNumItems(16)" class="btn btn-outline-light my-2 my-sm-0">16</button>
     <table class="table text-light bg-dark">
         <thead>
         <tr>
@@ -51,7 +51,7 @@
             <th scope="col">Storage</th>
             <th scope="col">Color</th>
             <th scope="col">Store</th>
-            <th scope="col">Price <button @click="sortByPrice()" v-if="ascending">\/</button> <button @click="sortByPrice()" v-else>/\</button></th>
+            <th scope="col">Price <button @click="sortByPrice()" v-if="ascending" class="btn btn-outline-light my-2 my-sm-0">\/</button> <button @click="sortByPrice()" v-else class="btn btn-outline-light my-2 my-sm-0">/\</button></th>
             <th scope="col">Go To</th>
         </tr>
         </thead>

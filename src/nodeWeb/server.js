@@ -4,12 +4,12 @@ var url = require("url");
 var bodyParser = require("body-parser");
 //Import the mysql module
 var mysql = require('mysql');
-
 //Status codes defined in external file
 require('./http_status.js');
 
 //The express module is a function. When it is executed it returns an app object
 const app = express();
+
 app.use(bodyParser.json());
 
 //Set up express to serve static files from the directory called 'public'
@@ -21,6 +21,7 @@ app.use('/js', express.static('node_modules/jquery/dist')); //jquery
 
 //Start the app listening on port 8080
 app.listen(8080);
+
 //Create a connection object with the user details
 var connectionPool = mysql.createConnection({
     host     : 'localhost',
@@ -51,7 +52,7 @@ function handleGetRequest(request, response) {
     var offset = queries['offset'];
     var search = queries['search'];
     var ascending = queries['ascending'];
-    search = search.replaceAll("%20", " "); //turns the search into a normal string.
+    search = search != undefined ? search.replaceAll("%20", " ") : ''; //turns the search into a normal string.
 
     //Split the path of the request into its components
     var pathArray = urlObj.pathname.split("/");
@@ -61,7 +62,7 @@ function handleGetRequest(request, response) {
 
     //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
-        let totNumItems = getTotalProductsCount(response, numItems, offset, search, ascending);//This function calls the getAllProducts function in its callback
+        getTotalProductsCount(response, numItems, offset, search, ascending);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -76,7 +77,7 @@ function handleGetRequest(request, response) {
         return;
     }
 
-    //If the last part of the path is a valid user id, return data about that user
+    //If the last part of the path is a valid product id, return data about that user
     if((pathEnd)){
         getSpecificProduct(response, pathEnd);
         return;
@@ -163,7 +164,6 @@ function getAllPhones(response, totNumItems, numItems, offset, search) {
     if(numItems !== undefined && offset !== undefined ) {
         sql += " ORDER BY phones.id LIMIT " + numItems + " OFFSET " + offset;
     }
-    console.log("GETALL: " + sql);
 
     //Execute the query
     connectionPool.query(sql, function (err, result) {
@@ -179,9 +179,7 @@ function getAllPhones(response, totNumItems, numItems, offset, search) {
         //Create JavaScript object that combines total number of items with data
         var returnObj = {totNumItems: totNumItems};
         returnObj.phones = result; //Array of data from database
-        console.log(returnObj.phones);
         //Return results in JSON format
-        console.log("DONE:!");
         response.json(returnObj);
     });
 }
@@ -218,7 +216,7 @@ function getTotalPhonesCount(response, numItems, offset, search){
 
         //Get the total number of items from the result
         var totNumItems = totalCount[0].count;
-        console.log("PHONES TOT: " + totNumItems);
+
         //Call the function that retrieves all phones
         getAllPhones(response, totNumItems, numItems, offset, search);
     });
@@ -243,7 +241,6 @@ function getSpecificProduct(response, phoneModel){
         }
         var returnObj = {
             products: result};
-        console.log(returnObj.products);
         //Output results in JSON format
         response.json(returnObj);
     });

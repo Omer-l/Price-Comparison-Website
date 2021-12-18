@@ -61,7 +61,7 @@ describe('Server', function() {
    //Mocha/Chai test of RESTful Web Service
    describe('/GET products', () => {
       it('should GET all the products', (done) => {
-         chai.request(server)
+         chai.request('http://localhost:8080')
              .get('/products')
             .end((err, res) => {
             res.should.have.status(200);
@@ -71,4 +71,32 @@ describe('Server', function() {
          });
       });
    });
+
+   //Mocha/Chai test of RESTful Web Service
+   describe('/GET phones', () => {
+      it('should GET all the phones', (done) => {
+         chai.request('http://localhost:8080')
+             .get('/phones')
+             .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('totNumItems');
+                res.body.phones.should.be.a('array');
+                done();
+             });
+      });
+   });
+
+   //Mocha/Chai test of RESTful Web Service
+   describe('/GET products', () => {
+      it('should GET specific products', (done) => {
+         chai.request('http://localhost:8080')
+             .get('/products/2')
+             .end((err, res) => {
+                res.should.have.status(200);
+                res.body.products.should.be.a('array');
+                done();
+             });
+      });
+   });
+
 });
