@@ -70,7 +70,7 @@ function handleGetRequest(request, response) {
 
     //If path ends with 'products' we return all products
     if(pathEnd === 'products'){
-        getTotalProductsCount(response, numItems, offset);//This function calls the getAllProducts function in its callback
+        getTotalProductsCount(response, numItems, offset, search);//This function calls the getAllProducts function in its callback
         return;
     }
 
@@ -135,12 +135,11 @@ function getOnlyTotalNumberOfPhoneModels(response, search) {
  *  enable pagination). This function should be called in the callback of getTotalProductCount  */
 function getAllProducts(response, totNumItems, numItems, offset, search) {
     //Select the products data using JOIN to convert foreign keys into useful data.
-    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model LIKE '%" + search + "%' ";
+    var sql = "SELECT products.name, products.store, products.url, products.price, phones.model, phones.brand, phones.display_size, phones.color, phones.url_image, phones.storage, products.id, products.phone_id FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model = '" + (search == undefined ? "" : search) + "' ";
     //Limit the number of results returned, if this has been specified in the query string
     if(numItems !== undefined && offset !== undefined ){
         sql += "ORDER BY products.id LIMIT " + numItems + " OFFSET " + offset;
     }
-
     //Execute the query
     connectionPool.query(sql, function (err, result) {
 
@@ -165,23 +164,35 @@ function getAllProducts(response, totNumItems, numItems, offset, search) {
     The database callback function will then call the function to get the product data
     with pagination */
 function getTotalProductsCount(response, numItems, offset, search){
-    var sql = "SELECT COUNT(*) FROM products";
+    var query1 = "SELECT products.name FROM ( ( products INNER JOIN phones ON phones.id = products.phone_id  ) ) WHERE  phones.model = '" + (search == undefined ? "" : search) + "' ";
+    var query2 = "SELECT FOUND_ROWS() AS count;";
 
-    //Execute the query and call the anonymous callback function.
-    connectionPool.query(sql, function (err, result) {
+    //Execute the query
+    connectionPool.query(query1, function (err, result) {
 
         //Check for errors
         if (err){
-            console.error("Error executing query: " + JSON.stringify(err)); // del?
+            console.log(err);
             //Not an ideal error code, but we don't know what has gone wrong.
             response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
             response.json({'error': true, 'message': + err});
             return;
         }
+    });
+    connectionPool.query(query2, function (err, totalCount) {
+
+        //Check for errors
+        if (err) {
+            console.log(err);
+            //Not an ideal error code, but we don't know what has gone wrong.
+            response.status(HTTP_STATUS.INTERNAL_SERVER_ERROR);
+            response.json({'error': true, 'message': +err});
+            return;
+        }
 
         //Get the total number of items from the result
-        var totNumItems = result[0]['COUNT(*)'];
-
+        var totNumItems = totalCount[0].count;
+        console.log("PHONES TOT: " + totNumItems);
         //Call the function that retrieves all products
         getAllProducts(response, totNumItems, numItems, offset, search);
     });

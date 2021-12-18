@@ -57,9 +57,12 @@
         </thead>
         <tbody>
         <tr v-for="product in products">
-            <td> {{phone.model}}</td>
-            <td><img :src="phone.url_image" width="100px" height="100px" alt="No Image"/></td>
-            <td> <button @click="goToComparePage(phone)">Compare</button> </td>
+            <td> {{product.model}}</td>
+            <td> {{product.storage}}</td>
+            <td> {{product.color}}</td>
+            <td> {{product.store}}</td>
+            <td> {{product.price}}</td>
+            <td> <button @click="goToSite(product)">Site</button> </td>
         </tr>
         </tbody>
     </table>
@@ -83,6 +86,7 @@
             currentPage: 0,
             numItems: 0,
             offset: 0,
+            phoneModel: '',
             search: '',
             totalPhones: ''
         },
@@ -94,15 +98,16 @@
                 const queries = new URLSearchParams(url);
                 let tmpNumItems = queries.get('num_items');
                 let tmpOffset = queries.get('offset');
-                let tmpSearch = queries.get('search');
+                let tmpModel = queries.get('model');
 
                 localApp.numItems = tmpNumItems === null ? 5 : parseInt(tmpNumItems);
                 localApp.offset = tmpOffset === null ? 0 : parseInt(tmpOffset);
-                localApp.search = tmpSearch === null ? '' : tmpSearch;
-                localApp.search = localApp.search.replaceAll("\"", ""); //turns the search into a normal string.
-                localApp.search = localApp.search.replaceAll("%22", " "); //turns the search into a normal string.
+                localApp.phoneModel = tmpModel === null ? '' : tmpModel;
+                localApp.phoneModel = localApp.phoneModel.replaceAll("\"", ""); //turns the search into a normal string.
+                localApp.phoneModel = localApp.phoneModel.replaceAll("%22", " "); //turns the search into a normal string.
                 //link for GET req to back end.
-                let getRequestLink = '/products?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.search;
+                let getRequestLink = '/products?num_items=' + localApp.numItems + "&offset=" + localApp.offset + "&search=" + localApp.phoneModel + "";
+                console.log(getRequestLink);
                 axios.get(getRequestLink)//Send GET request to phones path
                     .then(function (response) {//Request successful
                         //Point phones in data to returned array of phones
@@ -130,17 +135,17 @@
                 if(pageNumber >= 1 && pageNumber <= localApp.pages.length) {
                     let difference = pageNumber - localApp.currentPage;
                     let newOffset = localApp.offset + (localApp.numItems * difference);
-                    location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.search + "\"";
+                    location.href = "http://localhost:8080/index.html?&offset=" + newOffset + "&num_items=" + localApp.numItems + "&search=\"" + localApp.phoneModel + "\"";
                 }
             },
             searchPhoneModel() {
                 location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + this.numItems + "&search=\"" + this.search + "\"";
             },
             setNumItems(numItems) {
-                location.href = "http://localhost:8080/index.html?&offset=0&num_items=" + numItems + "&search=\"" + this.search + "\"";
+                location.href = "http://localhost:8080/product.html?&offset=0&num_items=" + numItems + "&search=\"" + this.phoneModel + "\"";
             },
-            goToComparePage(item) {
-                window.location.href = "http://localhost:8080/product.html?&model=" + item.model;
+            goToSite(item) {
+                window.open(item.url, '_blank').focus();
             }
         },
         created: function () {//Vue lifecycle hook, called when data is loaded.
