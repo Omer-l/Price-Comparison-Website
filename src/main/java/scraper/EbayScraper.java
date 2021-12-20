@@ -6,12 +6,14 @@ import dao.Product;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This scraper collects Apple and Samsung products from the Ebay store and stores them to the
  * database.
+ *
  * @author Omer Kacar
  * @see WebScraper
  */
@@ -53,6 +55,8 @@ public class EbayScraper extends WebScraper {
         links.add("https://www.ebay.co.uk/b/iPhone-SE-2nd-Generation/9355/bn_7117172647?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                 // -> iphone se
         links.add("https://www.ebay.co.uk/b/Apple-iPhone-12-Pro/9355/bn_7117593357?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                      // -> iphone 12 pro
         links.add("https://www.ebay.co.uk/b/Apple-iPhone-12-Pro-Max/9355/bn_7117596158?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                  // -> iphone 12 pro max
+        links.add("https://www.ebay.co.uk/b/Apple-iPhone-13-Pro/9355/bn_7117865209?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                  // -> iphone 12 pro max
+        links.add("https://www.ebay.co.uk/b/Apple-iPhone-13/9355/bn_7117855231?LH_BIN=1&LH_ItemCondition=1000&mag=1&rt=nc&_pgn=");                  // -> iphone 12 pro max
 
         return links;
     }
@@ -65,7 +69,8 @@ public class EbayScraper extends WebScraper {
 
     /**
      * Initialises all the iPhone models that exist at Ebay
-     * @return  a list of iPhone models that a present at Ebay
+     *
+     * @return a list of iPhone models that a present at Ebay
      */
     private ArrayList<String> getAppleProductModelNames() {
         // Indexes 0 to 10      -> iphones.
@@ -80,6 +85,8 @@ public class EbayScraper extends WebScraper {
         phoneModelNames.add("iphone se");
         phoneModelNames.add("iphone 12");
         phoneModelNames.add("iphone 12");
+        phoneModelNames.add("iphone 13");
+        phoneModelNames.add("iphone 13");
 
         return phoneModelNames;
     }
@@ -176,6 +183,7 @@ public class EbayScraper extends WebScraper {
 
     /**
      * scrapes for Samsung phones, given the model of the phone.
+     *
      * @return a list of phones. (Same model as given in the parameter)
      */
     private List<Phone> scrapeSamsungPhones() {
@@ -251,6 +259,7 @@ public class EbayScraper extends WebScraper {
 
     /**
      * Scrapes the web for all the phone models across all brands.
+     *
      * @return a list of phones belonging to all brands
      */
     @Override
@@ -258,13 +267,13 @@ public class EbayScraper extends WebScraper {
 
         List<List<Phone>> listOfAllProductsAllBrands = new ArrayList<>();
 
-        for (int brandIterator = 0; brandIterator < productModelNames.size(); brandIterator++) { //go through each brand (i.e., Apple))
-
-            for (int phoneModelIterator = 0; phoneModelIterator < productModelNames.get(brandIterator).size(); phoneModelIterator++) { //each brand's models{
-                List<Phone> listOfProducts = scrapeApplePhoneModel(brandIterator, phoneModelIterator);
-                listOfAllProductsAllBrands.add(listOfProducts);
-            }
+        //scrape Apple
+        for (int phoneModelIterator = 0; phoneModelIterator < productModelNames.get(0).size(); phoneModelIterator++) { //each brand's models{
+            List<Phone> listOfProducts = scrapeApplePhoneModel(0, phoneModelIterator);
+            listOfAllProductsAllBrands.add(listOfProducts);
         }
+        //scrape Samsung
+        scrapeSamsungPhones();
 
         return listOfAllProductsAllBrands;
     }
@@ -275,7 +284,6 @@ public class EbayScraper extends WebScraper {
     @Override
     public void run() {
         scrapeAllPhonesAllBrands();
-        scrapeSamsungPhones();
         getDriver().close();
     }
 }

@@ -109,6 +109,10 @@ public abstract class WebScraper extends Thread {
             return "Gray";
         else if (tmp.contains("starlight"))
             return "Starlight";
+        else if (tmp.contains("lavender"))
+            return "Lavender";
+        else if (tmp.contains("navy"))
+            return "Navy";
         else
             return "Unknown";
     }
@@ -281,6 +285,8 @@ public abstract class WebScraper extends Thread {
             return "Galaxy S20 Ultra";
         else if(tmp.contains("galaxy s20+"))
             return "Galaxy S20+";
+        else if(tmp.contains("galaxy s20 fe"))
+            return "Galaxy S20 FE";
         else if(tmp.contains("galaxy s20"))
             return "Galaxy S20";
         else if(tmp.contains("galaxy a32"))
