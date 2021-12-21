@@ -15,9 +15,6 @@ import java.util.List;
 @Configuration
 public class PhoneDao {
     private static SessionFactory sessionFactory;
-    //To ensure duplicate phones are not added to the database...
-//    HashSet<dao.Phone> set = new HashSet<>();
-
 
     private SessionFactory getSessionFactory() {
         return sessionFactory;
