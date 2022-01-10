@@ -1,7 +1,3 @@
-//div elements where products will be inserted
-const axios = require("axios");
-
-
 //when page is loaded, run init
 window.onload = init;
 
